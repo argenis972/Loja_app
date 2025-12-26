@@ -1,104 +1,98 @@
-# 🧾 Loja App (Python)
+# 🛍️ Loja App (Backend Python)
 
-Aplicação de console em Python que simula um **sistema simples de pagamentos de uma loja**, com cálculo de descontos, parcelamentos e geração de recibos.
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat&logo=python&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-O objetivo do projeto é praticar **organização de código**, separação de responsabilidades e uma arquitetura simples inspirada em boas práticas de backend.
+Aplicação simples desenvolvida em Python com foco em organização de código, regras de negócio claras e evolução progressiva para um backend mais estruturado.
 
-Não é um sistema comercial real. É um projeto educacional em evolução.
-
----
-
-## 📌 Funcionalidades
-
-- Pagamento à vista em dinheiro (10% de desconto)
-- Pagamento à vista em cartão (5% de desconto)
-- Pagamento parcelado:
-  - 2x sem juros
-  - 3x até 24x com juros fixos
-- Validação de dados de entrada
-- Geração de recibo estruturado
-- Salvamento do recibo em arquivo de texto
-- Interface via terminal (CLI)
+O projeto simula o funcionamento básico de uma loja, permitindo o cadastro de produtos, cálculo de valores, aplicação de taxas e descontos, além da geração de recibos.
 
 ---
 
-## 🗂 Estrutura Atual do Projeto
+## 🎯 Objetivo do Projeto
 
-```text
-Loja_app/
-│
-├── Calculadora_de_pagamentos.py   # Arquivo principal da aplicação
-├── README.md
-├── .gitignore
-│
-└── data/
-    └── recibos.txt                # Arquivo de saída dos recibos
-```
-  
-A estrutura atual do projeto é simples, com todos os componentes principais consolidados em um único arquivo para facilitar a compreensão inicial.
+- ✅ Organização e refatoração de código
+- ✅ Separação de responsabilidades
+- ✅ Validações de regras de negócio
+- ✅ Escrita de código limpo e legível
+- ✅Evolução gradual de um script simples para uma aplicação estruturada
 
+> *Não é um sistema comercial completo, mas sim um laboratório de aprendizado sólido e incremental.*
+---
 
+## 🗂 Estrutura Atual do Projeto 
 
-
-## 🗂 Estrutura Futura Planejada
-
-
-A estrutura futura planejada visa separar as responsabilidades em módulos distintos, facilitando a manutenção e escalabilidade do código. A seguir está a estrutura proposta:
-
+O projeto segue uma arquitetura modular inspirada em conceitos de Clean Architecture:
 
 ```text
 loja_app/
 │
-├── main.py                 # Ponto de entrada
+├── main.py                  #  Ponto de entrada da aplicação
 │
-├── domain/
+├── domain/                  # 🧠 O "Coração" da regra de negócio
 │   ├── __init__.py
-│   ├── recibo.py           # Dataclass Recibo
-│   └── calculadora.py      # Regras de negócio
+│   ├── recibo.py            # Modelo de dados (Dataclass)
+│   └── calculadora.py       # Lógica pura de cálculos
 │
-├── services/
+│
+├── services/                # ⚙️ Orquestração de fluxos
 │   ├── __init__.py
-│   └── pagamento_service.py # Fluxo principal
+│   └── pagamento_service.py 
 │
-├── ui/
+│
+├── ui/                      # 🖥️ Interface com o Usuário (CLI)
 │   ├── __init__.py
-│   ├── menu.py              # Prints e inputs
-│   └── validacoes.py        # Validação de dados
+│   ├── menu.py              # Exibição e Captura de dados
+│   └── validacoes.py        # Sanitização de entradas
 │
-├── infrastructure/
+├── infrastructure/          # 💾 Persistência e Dados
 │   ├── __init__.py
-│   └── storage.py           # Salvar e ler arquivos
+│   ├── storage.py           # Manipulação de arquivos (Salvar e ler)
+│   └── data/
+│       ├── .gitkeep
+│       └── recibos.txt      # Histórico de recibos gerados
 │
-└── data/
+└── tests/                   # 🧪 Testes Automatizados (Em construção)
+    ├── __init__.py
+    ├── test_calculadora.py
+    ├── test_recibo.py
+    └── test_storage.py
     └── recibos.txt
+
 ```
----
-Essa refatoração tem como objetivo melhorar a legibilidade, manutenção e escalabilidade do código.
+## ⚙️ Funcionalidades Atuais
 
-## 🛠 Tecnologias Utilizadas
+- Cadastro dinâmico de produtos via terminal.
+- Motor de cálculo com aplicação de taxas e descontos.
+- Validação robusta (impede preços negativos ou nomes vazios).
+- Validações de dados de entrada
+- Geração de recibo em formato textual
+- Log Automático: Salva uma cópia do recibo em data/recibos.txt com timestamp.
 
-- Python 3.10+
-- dataclasses
-- Programação orientada a objetos
-- Estrutura modular (em evolução)
-- Entrada e saída via console
+## 🚀 Tecnologias Utilizadas
+
+- Python 3
+- Programação Orientada a Objetos
+- Estrutura modular
+- Git para versionamento
 
 ## 🚀 Como Executar o Projeto
-- Clonar o repositório:
+1. Clonar o repositório:
 ```bash
-git clone https://github.com/argenis972/Loja_app.git
+git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
 ```
 
-Entrar no diretório do projeto:
+2. Acesse o diretório:
 
 ```bash
 cd Loja_app
 ```
-Executar a aplicação (estrutura atual):
+Execute o arquivo principal no Terminal (CMD):
 ```bash
-python Calculadora_de_pagamentos.py
+python main.py
 ```
-Seguir as instruções exibidas no terminal.
+(Caso tenha múltiplas versões do Python, tente python3 main.py)
 
 ## 📄 Saída
 
@@ -110,30 +104,22 @@ data/recibos.txt
 
 Cada execução adiciona um novo recibo com data e hora.
 
-## 🎯 Objetivo do Projeto
-
-- Praticar lógica de negócio
-- Aprender a estruturar projetos Python
-- Evoluir de script único para arquitetura modular
-- Aplicar boas práticas de backend em projetos pequenos
-
 ## 🔧 Possíveis Melhorias Futuras
 
-- Concluir a refatoração modular
-- Exportar recibos em PDF
-- Configuração externa de taxas e descontos
-- Testes automatizados
-- Persistência em banco de dados
-- Interface gráfica ou aplicação web
+- Testes: Finalizar a cobertura de testes unitários com pytest.
+- Configuração: Mover taxas (% impostos) para um arquivo de configuração .env ou .json.
+- Exportação: Gerar recibos em PDF.
+- API: Transformar o backend para uso com FastAPI
+- Banco de Dados: Implementar SQLite para persistir produtos e histórico.
 
 ## 👤 Autor 
 
 **Argenis López** <br />
-*Projeto pessoal com fins educacionais e de aprendizado em backend Python.*
+*Em desenvolvimento contínuo, com foco em aprendizado, refatoração e consolidação de fundamentos de backend em Python.*
 
 ## 📜 Licença
 
-Uso livre para fins educacionais e pessoais.
+Este projeto está sob a licença MIT - sinta-se livre para usar e modificar para estudos.
 
 ## 📬 Contato
 
