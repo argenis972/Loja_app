@@ -1,0 +1,9 @@
+
+data/recibo_de_pagamento.txt
+data/*
+!data/.gitkeep
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
