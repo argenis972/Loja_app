@@ -27,8 +27,8 @@ def exibir_recibo(recibo: Recibo):
     print(f"="*55)
     print(f"Data/Hora: {recibo.data_hora}")
     print(f"Método de pagamento:          {recibo.metodo:>8}")
-    if recibo.parcela > 1:
-        print(f"Número de parcelas:           {recibo.parcela:>8}")
+    if recibo.parcelas > 1:
+        print(f"Número de parcelas:           {recibo.parcelas:>8}")
         print(f"Valor de cada parcela:          {recibo.valor_da_parcela:>8.2f} R$")
     
     if recibo.informacoes_adicionais:

@@ -1,6 +1,7 @@
 import pytest
 from domain import CalculadoraPagamentos, Recibo
 
+
 def test_desconto_dinheiro_precisao_float():
     # Testa se o desconto de 10% para pagamento à vista em dinheiro é aplicado corretamente
     valor_compra = 150.50
@@ -19,7 +20,7 @@ def test_logica_parcelamento_e_limites(parcelas, juros):
     valor = 1000.0
     recibo = CalculadoraPagamentos.parcelado(valor, parcelas)
     assert recibo.total == valor * juros
-    assert recibo.parcela == parcelas
+    assert recibo.parcelas == parcelas
 
 def test_calculadora_bloqueia_parcelas_fora_do_intervalo():
     # Testa se a calculadora bloqueia parcelas inválidas

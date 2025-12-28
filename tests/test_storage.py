@@ -1,20 +1,22 @@
-import unittest
-import os
-from infrastructure.storage import Storage
+from infrastructure.storage import ArquivoReciboRepository
+from domain.recibo import Recibo
 
-class TestStorage(unittest.TestCase):
-    def setUp(self):
-        self.test_file = "tests/test_recibos.txt"
-        self.storage = Storage(self.test_file)
+import tempfile
+from infrastructure.storage import ArquivoReciboRepository
+from domain.recibo import Recibo
 
-    def tearDown(self):
-        if os.path.exists(self.test_file):
-            os.remove(self.test_file)
+def test_salvar_recibo_em_arquivo():
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        repo = ArquivoReciboRepository(tmp.name)
 
-    def test_salvar_cria_arquivo_e_escreve_conteudo(self):
-        conteudo = "Recibo de Teste"
-        self.storage.salvar(conteudo)
-        
-        self.assertTrue(os.path.exists(self.test_file))
-        with open(self.test_file, "r") as f:
-            self.assertIn(conteudo, f.read())
+        recibo = Recibo(
+            total=100,
+            metodo="teste"
+        )
+
+        repo.salvar(recibo)
+
+        with open(tmp.name) as f:
+            conteudo = f.read()
+
+        assert "Recibo" in conteudo

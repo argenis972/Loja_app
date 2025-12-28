@@ -4,41 +4,32 @@ class CalculadoraPagamentos:
 
     @staticmethod
     def a_vista_dinheiro(valor: float) -> Recibo:
-        total = valor * 0.90
+        total = valor * 0.9
         return Recibo(
             total=total,
-            metodo="À vista em dinheiro",
-            informacoes_adicionais="Desconto de 10%"
+            metodo="a_vista_dinheiro",
+            parcelas=1,
+            informacoes_adicionais="À vista em dinheiro"
         )
-
+        
     @staticmethod
-    def a_vista_cartao(valor: float) -> Recibo:
-        total = valor * 0.95
-        return Recibo(
-            total=total,
-            metodo="À vista em cartão",
-            informacoes_adicionais="Desconto de 5%"
-        )
-
-    @staticmethod
-    def parcelado(valor: float, parcela: int) -> Recibo:
-        if parcela == 2:
+    def parcelado(valor: float, parcelas: int) -> Recibo:
+        if parcelas == 2:
             return Recibo(
                 total=valor,
-                metodo="Cartão de crédito em 2x",
-                parcela=2,
+                metodo="parcelado",
+                parcelas=2,
                 informacoes_adicionais="Sem juros"
             )
 
-        if 3 <= parcela <= 24:
+        if 3 <= parcelas <= 24:
             total = valor * 1.20
             return Recibo(
                 total=total,
-                metodo=f"Cartão de crédito em {parcela}x",
-                parcela=parcela,
+                metodo="parcelado",
+                parcelas=parcelas,
                 informacoes_adicionais="20% de juros"
             )
 
-        raise ValueError("Número de parcelas inválido.")
-
+        raise ValueError("Número de parcelas inválido")
 

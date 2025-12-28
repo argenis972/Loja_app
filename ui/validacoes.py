@@ -14,6 +14,7 @@ def validacao_de_dados(mensagem, tipo : type, minimo = 0.01):
             print("Entrada inválida. Por favor, digite apenas números.")
 
 
+
 def pedir_input_numerico(msg, tipo=int, minimo=None, maximo=None):
     
     while True:

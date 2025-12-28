@@ -3,19 +3,23 @@ from datetime import datetime
 
 @dataclass
 class Recibo:
-    total: float
-    metodo: str
-    parcela: int = 1
-    informacoes_adicionais: str = ""
-    data_hora: str = field(default_factory=lambda: datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+    def __init__(
+        self,
+        total: float,
+        metodo: str,
+        parcelas: int = 1,
+        informacoes_adicionais: str = ""
+    ):
+        if total <= 0:
+            raise ValueError("Total inválido")
 
-    def __post_init__(self):
-        if self.total <= 0:
-            raise ValueError("Total do recibo deve ser maior que zero")
-        if self.parcela < 1:
-            raise ValueError("Parcela deve ser no mínimo 1")
+        if parcelas < 1:
+            raise ValueError("Parcelas inválidas")
 
-    @property
-    def valor_da_parcela(self) -> float:
-        return round(self.total / self.parcela, 2)
+        self.total = total
+        self.metodo = metodo
+        self.parcelas = parcelas
+        self.informacoes_adicionais = informacoes_adicionais
+        self.valor_parcela = round(self.total / self.parcelas, 2)
+
 

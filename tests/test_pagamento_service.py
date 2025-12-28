@@ -1,32 +1,33 @@
-# tests/test_pagamento_service.py
-import unittest
-from unittest.mock import MagicMock
 from services.pagamento_service import PagamentoService
 from domain.recibo import Recibo
 
-class TestPagamentoService(unittest.TestCase):
-    def setUp(self):
-        self.mock_repo = MagicMock()
-        self.service = PagamentoService(repositorio=self.mock_repo)
 
-    def test_deve_calcular_previa_a_vista_dinheiro(self):
-        resultado = self.service.calcular_previa(100.0, 1)
+class FakeReciboRepository:
+    def __init__(self):
+        self.salvos = []
 
-        # Asserção
-        self.assertIsInstance(resultado, Recibo)
-        self.assertEqual(resultado.total, 90.0) # Supondo 10% desc
+    def salvar(self, recibo):
+        self.salvos.append(recibo)
 
-    def test_deve_finalizar_venda_e_salvar(self):
-        # Cenário
-        recibo_fake = Recibo(total=100.0, metodo="Dinheiro")
-        
-        # Ação
-        self.service.finalizar_venda(recibo_fake)
 
-        # Asserção: Verifica se chamou o repositório
-        self.mock_repo.salvar.assert_called_once_with(recibo_fake)
+def test_pagamento_a_vista_dinheiro():
+    repo = FakeReciboRepository()
+    service = PagamentoService(repo)
 
-    def test_deve_falhar_com_opcao_invalida(self):
-        # Ajustado para calcular_previa
-        with self.assertRaises(ValueError):
-            self.service.calcular_previa(100, 99)
+    recibo = service.pagar_a_vista_dinheiro(100)
+
+    assert isinstance(recibo, Recibo)
+    assert recibo.total == 90
+    assert recibo.metodo == "À vista em dinheiro"
+    assert len(repo.salvos) == 1
+
+
+def test_pagamento_parcelado_com_juros():
+    repo = FakeReciboRepository()
+    service = PagamentoService(repo)
+
+    recibo = service.pagar_parcelado(100, 5)
+
+    assert recibo.total == 120
+    assert recibo.parcelas == 5
+    assert "juros" in recibo.informacoes_adicionais.lower()
