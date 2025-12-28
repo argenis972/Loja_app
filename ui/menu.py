@@ -22,13 +22,17 @@ def exibir_menu_principal():
 
 def exibir_recibo(recibo: Recibo):
     # Exibir o recibo na tela
-    print("\n" + "=="*24, "RECIBO DE PAGAMENTO", "=="*24)
-    print(f"Total a pagar: R$ {recibo.total:.2f}")
-    print(f"Método de pagamento: {recibo.metodo}")
-    
+    print(f"\n" + "="*55)
+    print(f"{'RESUMO DO PAGAMENTO':^55}")
+    print(f"="*55)
+    print(f"Data/Hora: {recibo.data_hora}")
+    print(f"Método de pagamento:          {recibo.metodo:>8}")
     if recibo.parcela > 1:
-        print(f"Número de parcelas: {recibo.parcela}")
-        print(f"Valor de cada parcela: {recibo.valor_da_parcela:.2f} R$")
+        print(f"Número de parcelas:           {recibo.parcela:>8}")
+        print(f"Valor de cada parcela:          {recibo.valor_da_parcela:>8.2f} R$")
     
     if recibo.informacoes_adicionais:
-        print(f"Informações adicionais: {recibo.informacoes_adicionais}\n")
+        print(f"Informações adicionales:        {recibo.informacoes_adicionais:8}")
+    print("-"*55)
+    print(f"Total a pagar:                    R${recibo.total:8.2f}\n")
+    print(f"="*55)

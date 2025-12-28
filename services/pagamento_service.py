@@ -1,29 +1,23 @@
-from domain import CalculadoraPagamentos
-from ui import exibir_menu_principal, exibir_recibo, validacao_de_dados
-from infrastructure import salvar_recibo_em_arquivo_texto
+from domain.calculadora import CalculadoraPagamentos
 
+class PagamentoService:
+    def __init__(self, repositorio):
+        self.repositorio = repositorio
 
-# Fluxo principal de processamento de pagamento
-def processar_pagamento():
-    # Orquestrador do fluxo principal
-    valor , opcao = exibir_menu_principal()
-
-        # Dispatch table
-    dispatch = {
-        1: lambda v: CalculadoraPagamentos.a_vista_dinheiro(v),
-        2: lambda v: CalculadoraPagamentos.a_vista_cartao(v),
-        3: lambda v: CalculadoraPagamentos.parcelado(v, 2),
-        4: lambda v: CalculadoraPagamentos.parcelado(v, validacao_de_dados("Em quantas parcelas (3/24)? : ", int, 3))
+    def calcular_previa(self, valor, opcao, parcelas=0):
+        # Dispatch table segura
+        metodos = {
+            1: lambda v: CalculadoraPagamentos.a_vista_dinheiro(v),
+            2: lambda v: CalculadoraPagamentos.a_vista_cartao(v),
+            3: lambda v: CalculadoraPagamentos.parcelado(v, 2),
+            4: lambda v: CalculadoraPagamentos.parcelado(v, parcelas)
         }
-    try:
-        acao = dispatch.get(opcao)
+        
+        acao = metodos.get(opcao)
         if not acao:
-            raise ValueError("Opção de pagamento inválida.")
-        resultado_recibo = acao(valor)
+            raise ValueError(f"Opção de pagamento {opcao} é inválida.")
+            
+        return acao(valor) # Retorna o objeto Recibo (com o campo .total atualizado)
 
-        # Exibir e salvar o recibo
-        exibir_recibo(resultado_recibo)
-        salvar_recibo_em_arquivo_texto(resultado_recibo)
-
-    except Exception as e:
-        print(f"Erro ao processar pagamento: {e}")
+    def finalizar_venda(self, recibo):
+        self.repositorio.salvar(recibo)

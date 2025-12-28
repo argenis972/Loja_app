@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from datetime import datetime
 
 @dataclass
 class Recibo:
@@ -7,11 +7,11 @@ class Recibo:
     metodo: str
     parcela: int = 1
     informacoes_adicionais: str = ""
+    data_hora: str = field(default_factory=lambda: datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     def __post_init__(self):
         if self.total <= 0:
             raise ValueError("Total do recibo deve ser maior que zero")
-
         if self.parcela < 1:
             raise ValueError("Parcela deve ser no mínimo 1")
 
