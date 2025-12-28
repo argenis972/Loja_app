@@ -1,4 +1,4 @@
-# 🛍️ Loja App — De Script CLI a API REST em Python
+# 🛍️ Loja App — Evolução de Script CLI para Backend em Python
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20REST-009688?style=flat&logo=fastapi&logoColor=white)
@@ -10,17 +10,32 @@
 
 ## 📌 Visão Geral
 
-O **Loja App** é um **laboratório de engenharia de software backend em Python** que documenta, de forma prática, a evolução de um projeto real:  
-de um **script CLI funcional** para uma **aplicação backend estruturada**, com **API REST**, **testes automatizados** e **arquitetura em camadas**.
+O **Loja App** é um **laboratório de engenharia de software backend em Python**, focado na modelagem e evolução de **regras de negócio financeiras**, especialmente no cálculo de **pagamentos parcelados e geração de recibos**.
 
-Mais do que “fazer funcionar”, o foco do projeto está em:
-- qualidade de código
-- clareza de regras de negócio
+Este repositório representa a **versão consolidada do projeto**, após ciclos de experimentação, refatoração e ajustes conscientes nas regras de cálculo.  
+O objetivo não é entregar um sistema comercial final, mas **documentar decisões técnicas reais**, priorizando:
+
+- clareza das regras de negócio
 - separação de responsabilidades
 - testabilidade
-- evolução incremental consciente
+- evolução incremental
+- qualidade de código
 
-Este não é um sistema comercial pronto, mas um **ambiente controlado de aprendizado técnico**, inspirado em práticas profissionais de backend.
+O projeto começou como um ambiente de experimentação e foi estabilizado nesta versão para servir como **base principal do repositório**.
+
+## 🧠 Evolução do Projeto
+
+O desenvolvimento do Loja App seguiu uma abordagem incremental:
+
+1. Implementação inicial de cálculos simples via CLI
+2. Introdução de regras de parcelamento e descontos
+3. Ajustes na geração de recibos para refletir corretamente:
+   - valor total
+   - número de parcelas
+   - valor individual de cada parcela
+4. Refatoração para melhorar legibilidade, testes e isolamento das regras de negócio
+
+A lógica atual de recibos parcelados é resultado desse processo de exploração e consolidação, e representa a base estável do projeto.
 
 ---
 
@@ -91,9 +106,25 @@ Loja_app/
 ├── main_api.py                  # Entry point da API FastAPI
 └── README.md
 ```
+## 🧩 Decisões de Design
+
+- **Separação por camadas (domain / services / infrastructure / ui)**  
+  Para isolar regras de negócio e permitir evolução sem reescrita do núcleo.
+
+- **Domínio independente de interface**  
+  A lógica de cálculo e geração de recibos não depende da CLI.
+
+- **Persistência simples em arquivo**  
+  Escolhida intencionalmente para manter foco nas regras de negócio e facilitar inspeção manual durante o desenvolvimento.
+  A camada está isolada para futura migração para banco de dados.
+
+Essas decisões priorizam clareza e testabilidade, mesmo com maior complexidade inicial.
+
 ## ⚙️ Destaques Técnicos Atuais
 
 ### 🚀 FastAPI
+
+A API REST representa a etapa atual de exposição dos fluxos de negócio, mantendo o projeto aberto a evoluções.
 
 - Exposição dos fluxos de pagamento via API REST
 - Documentação automática com Swagger e Redoc
@@ -112,19 +143,22 @@ http://127.0.0.1:8000/docs
 - - API
 - Segurança para refatorações futuras
 
-### 🧮 Regras de Negócio (Pagamentos e Recibos)
+## 🧮 Regras de Negócio
 
-O sistema implementa regras financeiras realistas, como:
-- Pagamento à vista em dinheiro com 10% de desconto
-- Pagamento parcelado de 2x até 24x
-- Aplicação de juros progressivos
-- Geração automática de recibo contendo:
-- - valor total
-- - número de parcelas
-- - valor de cada parcela
-- - descrição da regra aplicada
-- - data e hora da transação
-Essas regras vivem no domínio, totalmente desacopladas da API ou da UI.
+O sistema implementa regras financeiras explícitas e testáveis, incluindo:
+
+- Pagamento à vista com desconto
+- Pagamento parcelado em múltiplas parcelas
+- Cálculo automático:
+  - do valor total
+  - do valor de cada parcela
+  - da descrição da regra aplicada
+- Geração de recibo contendo:
+  - valores detalhados
+  - número de parcelas
+  - data e hora da transação
+
+Essas regras residem no domínio e não dependem da interface (CLI) ou de mecanismos de persistência.
 
 ## 🚀 Como Executar o Projeto
 ### 1. Clonar o repositório:
