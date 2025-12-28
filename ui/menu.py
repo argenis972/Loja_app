@@ -25,7 +25,7 @@ def exibir_recibo(recibo: Recibo):
     print(f"\n" + "="*55)
     print(f"{'RESUMO DO PAGAMENTO':^55}")
     print(f"="*55)
-    print(f"Data/Hora: {recibo.data_hora}")
+    print(f"Data/Hora:                  " f"{recibo.data_hora.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Método de pagamento:          {recibo.metodo:>8}")
     if recibo.parcelas > 1:
         print(f"Número de parcelas:           {recibo.parcelas:>8}")

@@ -1,18 +1,14 @@
 from fastapi import FastAPI, HTTPException
-
 from api.dtos.pagamento_request import (
     PagamentoDinheiroRequest,
     PagamentoParceladoRequest,
 )
 from api.dtos.pagamento_response import PagamentoResponse
-
 from services.pagamento_service import PagamentoService
 from infrastructure.storage import ArquivoReciboRepository
 
 app = FastAPI()
 
-
-# configuração básica (simples por enquanto)
 repo = ArquivoReciboRepository("data/recibos.txt")
 service = PagamentoService(repo)
 
@@ -24,15 +20,15 @@ def pagamento_a_vista_dinheiro(request: PagamentoDinheiroRequest):
 
         return PagamentoResponse(
             total=recibo.total,
-            metodo=recibo.metodo,
+            metodo="a_vista_dinheiro",
             descricao=recibo.informacoes_adicionais,
-            parcelas=recibo.parcelas if recibo.parcelas > 1 else None,
-            valor_parcela=recibo.valor_parcela if recibo.parcelas > 1 else None
+            parcelas=recibo.parcelas,
+            valor_parcela=recibo.valor_parcela
         )
-
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.post("/pagamentos/parcelado", response_model=PagamentoResponse)
 def pagamento_parcelado(request: PagamentoParceladoRequest):
@@ -44,13 +40,11 @@ def pagamento_parcelado(request: PagamentoParceladoRequest):
 
         return PagamentoResponse(
             total=recibo.total,
-            metodo=recibo.metodo,
-            descricao=recibo.informacoes_adicionais,
-            parcelas=recibo.parcelas if recibo.parcelas > 1 else None,
-            valor_parcela=recibo.valor_parcela if recibo.parcelas > 1 else None
+            metodo="parcelado",
+            descricao=f"Cartão de crédito em {recibo.parcelas}x",
+            parcelas=recibo.parcelas,
+            valor_parcela=recibo.valor_parcela
         )
-
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-

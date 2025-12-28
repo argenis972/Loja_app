@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 class PagamentoResponse(BaseModel):
     total: float
     metodo: str
     descricao: str
-    parcelas: int | None = None
-    valor_parcela: float | None = None
+    parcelas: int          # ⬅️ NO Optional
+    valor_parcela: float   # ⬅️ NO Optional
