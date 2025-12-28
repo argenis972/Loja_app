@@ -20,7 +20,7 @@ Mais do que “fazer funcionar”, o foco do projeto está em:
 - testabilidade
 - evolução incremental consciente
 
-> Este não é um sistema comercial pronto, mas um **ambiente controlado de aprendizado técnico**, inspirado em práticas profissionais de backend.
+Este não é um sistema comercial pronto, mas um **ambiente controlado de aprendizado técnico**, inspirado em práticas profissionais de backend.
 
 ---
 
@@ -129,7 +129,7 @@ Essas regras vivem no domínio, totalmente desacopladas da API ou da UI.
 ## 🚀 Como Executar o Projeto
 ### 1. Clonar o repositório:
 ```bash
-git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
+git clone https://github.com/argenis972/Loja_app.git
 ```
 
 2. Acesse o diretório:
