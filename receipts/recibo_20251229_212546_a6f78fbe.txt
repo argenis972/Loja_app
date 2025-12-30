@@ -1,0 +1,9 @@
+RESUMO DO PAGAMENTO
+===================
+data_hora: 2025-12-29T21:25:46.746152
+metodo: Cartão (parcelado)
+parcelas: 4
+valor_da_parcela: 55.0
+total: 220.0
+valor_original: 200.0
+taxas: {'desconto_vista': 10.0, 'juros_parcelamento': 2.5}

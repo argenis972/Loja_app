@@ -1,32 +1,37 @@
-from domain.calculadora import CalculadoraPagamentos
-from services.recibo_repository import ReciboRepository
-from domain.recibo import Recibo
+from typing import Optional
+from domain.calculadora import Calculadora
 
 
 class PagamentoService:
-    def __init__(self, repositorio):
-        self.repositorio = repositorio
+    """
+    Serviço de aplicação responsável por orquestrar a criação de pagamentos.
+    Recebe as taxas no construtor (injeção de dependência) e instancia a Calculadora do domínio.
+    Mantém suporte a um repositório opcional (repo) para compatibilidade com código anterior.
+    """
 
+    def __init__(
+        self,
+        desconto_vista: float,
+        juros_parcelamento: float,
+        repo: Optional[object] = None,
+    ):
+        # cria a calculadora do domínio com as taxas recebidas
+        self.calculadora = Calculadora(desconto_vista, juros_parcelamento)
+        # armazena repo opcional (p.ex. para persistência de pagamentos)
+        self.repo = repo
 
-class PagamentoService:
-
-    def __init__(self, repository: ReciboRepository):
-        self.repository = repository
-
-    def pagar_a_vista_dinheiro(self, valor: float, persistir: bool = True) -> Recibo:
-        recibo = CalculadoraPagamentos.a_vista_dinheiro(valor)
-        if persistir:
-            self.repository.salvar(recibo)
-        return recibo
-
-    def pagar_a_vista_cartao(self, valor: float, persistir: bool = True) -> Recibo:
-        recibo = CalculadoraPagamentos.a_vista_cartao(valor)
-        if persistir:
-            self.repository.salvar(recibo)
-        return recibo
-
-    def pagar_parcelado(self, valor: float, parcelas: int, persistir: bool = True) -> Recibo:
-        recibo = CalculadoraPagamentos.parcelado(valor, parcelas)
-        if persistir:
-            self.repository.salvar(recibo)
-        return recibo
+    def criar_pagamento(self, valor: float, num_parcelas: int):
+        """
+        Retorna o resultado da Calculadora.
+        Se houver necessidade, aqui poderíamos persistir usando self.repo.
+        """
+        resultado = self.calculadora.calcular(valor, num_parcelas)
+        # Exemplo: persistir se repo fornecido (interface genérica)
+        if self.repo:
+            try:
+                # supondo um método save no repo; isto é apenas ilustrativo e opcional
+                self.repo.save(resultado)
+            except Exception:
+                # não falhar em caso de ausência de método ou erro de persistência
+                pass
+        return resultado

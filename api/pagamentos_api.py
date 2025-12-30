@@ -1,50 +1,31 @@
-from fastapi import FastAPI, HTTPException
-from api.dtos.pagamento_request import (
-    PagamentoDinheiroRequest,
-    PagamentoParceladoRequest,
-)
-from api.dtos.pagamento_response import PagamentoResponse
+from fastapi import APIRouter, Depends, Request, HTTPException
+from pydantic import BaseModel
+
+from config.settings import TaxasConfig
 from services.pagamento_service import PagamentoService
-from infrastructure.storage import ArquivoReciboRepository
 
-app = FastAPI()
-
-repo = ArquivoReciboRepository("data/recibos.txt")
-service = PagamentoService(repo)
+router = APIRouter(prefix="/pagamentos", tags=["pagamentos"])
 
 
-@app.post("/pagamentos/a-vista/dinheiro", response_model=PagamentoResponse)
-def pagamento_a_vista_dinheiro(request: PagamentoDinheiroRequest):
-    try:
-        recibo = service.pagar_a_vista_dinheiro(request.valor)
-
-        return PagamentoResponse(
-            total=recibo.total,
-            metodo="a_vista_dinheiro",
-            descricao=recibo.informacoes_adicionais,
-            parcelas=recibo.parcelas,
-            valor_parcela=recibo.valor_parcela
-        )
-
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+class PagamentoRequest(BaseModel):
+    valor: float
+    num_parcelas: int
 
 
-@app.post("/pagamentos/parcelado", response_model=PagamentoResponse)
-def pagamento_parcelado(request: PagamentoParceladoRequest):
-    try:
-        recibo = service.pagar_parcelado(
-            request.valor,
-            request.parcelas
-        )
+def get_taxas(request: Request) -> TaxasConfig:
+    """
+    Dependency que obtém as taxas carregadas no startup através de request.app.state.
+    Evita importar diretamente o módulo de settings aqui (a leitura já foi feita no startup).
+    """
+    taxas = getattr(request.app.state, "taxas_config", None)
+    if taxas is None:
+        raise HTTPException(status_code=500, detail="Configuração de taxas não carregada.")
+    return taxas
 
-        return PagamentoResponse(
-            total=recibo.total,
-            metodo="parcelado",
-            descricao=f"Cartão de crédito em {recibo.parcelas}x",
-            parcelas=recibo.parcelas,
-            valor_parcela=recibo.valor_parcela
-        )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.post("/", response_model=dict)
+def criar_pagamento(req: PagamentoRequest, taxas: TaxasConfig = Depends(get_taxas)):
+    # Injetamos as taxas no serviço; o serviço instancia a Calculadora de domínio.
+    service = PagamentoService(taxas.desconto_vista, taxas.juros_parcelamento)
+    resultado = service.criar_pagamento(req.valor, req.num_parcelas)
+    return resultado

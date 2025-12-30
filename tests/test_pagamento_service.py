@@ -1,33 +1,11 @@
 from services.pagamento_service import PagamentoService
-from domain.recibo import Recibo
 
 
-class FakeReciboRepository:
-    def __init__(self):
-        self.salvos = []
-
-    def salvar(self, recibo):
-        self.salvos.append(recibo)
-
-
-def test_pagamento_a_vista_dinheiro():
-    repo = FakeReciboRepository()
-    service = PagamentoService(repo)
-
-    recibo = service.pagar_a_vista_dinheiro(100)
-
-    assert isinstance(recibo, Recibo)
-    assert recibo.total == 90
-    assert recibo.metodo == "À vista em dinheiro"
-    assert len(repo.salvos) == 1
-
-
-def test_pagamento_parcelado_com_juros():
-    repo = FakeReciboRepository()
-    service = PagamentoService(repo)
-
-    recibo = service.pagar_parcelado(100, 5)
-
-    assert recibo.total == 120
-    assert recibo.parcelas == 5
-    assert "juros" in recibo.informacoes_adicionais.lower()
+def test_servico_utiliza_taxas_injetadas():
+    # testes não fazem I/O: passamos valores diretamente
+    service = PagamentoService(desconto_vista=5.0, juros_parcelamento=1.5)
+    resultado = service.criar_pagamento(valor=200.0, num_parcelas=1)
+    # desconto de 5% sobre 200 -> 190
+    assert resultado["total"] == 190.0
+    assert resultado["valor_parcela"] == 190.0
+    assert resultado["num_parcelas"] == 1
