@@ -7,10 +7,7 @@ def validacao_de_dados(mensagem, tipo: type, minimo=0.01):
                 entrada = entrada.replace(",", ".")
             valor = tipo(entrada)
             if minimo is not None and valor < minimo:
-                print(
-                    "Valor inválido. Por favor,"
-                    f"digite um valor maior ou igual a {minimo} "
-                )
+                print(f"Valor inválido. Por favor,um valor maior ou igual a {minimo} ")
                 continue
             return valor
         except ValueError:

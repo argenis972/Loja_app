@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any, Dict
 
 try:
-    # Import opcional — se não existir, geraremos apenas JSON e TXT
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
 
@@ -19,10 +18,6 @@ def _ensure_dir(path: Path) -> None:
 
 
 def _serialize_recibo(recibo: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Garante que todos os campos do recibo sejam serializáveis em JSON.
-    Converte datetimes para ISO strings, etc.
-    """
     serial = {}
     for k, v in recibo.items():
         if isinstance(v, datetime):
@@ -36,9 +31,6 @@ def _serialize_recibo(recibo: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _gerar_pdf(path_pdf: Path, recibo: Dict[str, Any]) -> None:
-    """
-    Gera um PDF simples com os dados do recibo usando reportlab.
-    """
     c = canvas.Canvas(str(path_pdf), pagesize=A4)
     width, height = A4
 
