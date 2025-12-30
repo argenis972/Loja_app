@@ -3,187 +3,136 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20REST-009688?style=flat&logo=fastapi&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-Testes%20Automatizados-brightgreen?style=flat)
-![Status](https://img.shields.io/badge/Status-Em%20Evolu%C3%A7%C3%A3o-orange)
+![Status](https://img.shields.io/badge/Status-Estável-success)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
 ## 📌 Visão Geral
 
-O **Loja App** é um **laboratório de engenharia de software backend em Python**, focado na modelagem e evolução de **regras de negócio financeiras**, especialmente no cálculo de **pagamentos parcelados e geração de recibos**.
+**Loja App** é um **laboratório de engenharia de software backend em Python**, focado na modelagem e evolução de **regras de negócio financeiras**, especialmente no cálculo de **pagamentos parcelados** e geração de **recibos**.
 
-Este repositório representa a **versão consolidada do projeto**, após ciclos de experimentação, refatoração e ajustes conscientes nas regras de cálculo.  
-O objetivo não é entregar um sistema comercial final, mas **documentar decisões técnicas reais**, priorizando:
+O objetivo do projeto não é entregar um sistema comercial final, mas **documentar decisões técnicas reais**, priorizando:
 
-- clareza das regras de negócio
-- separação de responsabilidades
-- testabilidade
-- evolução incremental
-- qualidade de código
-
-O projeto começou como um ambiente de experimentação e foi estabilizado nesta versão para servir como **base principal do repositório**.
+- Clareza das regras de negócio  
+- Separação de responsabilidades (Clean Architecture)  
+- Testabilidade  
+- Evolução incremental  
+- Qualidade de código
+# 
+---
 
 ## 🧠 Evolução do Projeto
 
-O desenvolvimento do Loja App seguiu uma abordagem incremental:
-
-1. Implementação inicial de cálculos simples via CLI
-2. Introdução de regras de parcelamento e descontos
-3. Ajustes na geração de recibos para refletir corretamente:
-   - valor total
-   - número de parcelas
-   - valor individual de cada parcela
-4. Refatoração para melhorar legibilidade, testes e isolamento das regras de negócio
-
-A lógica atual de recibos parcelados é resultado desse processo de exploração e consolidação, e representa a base estável do projeto.
-
----
-
-## 🧠 Narrativa de Evolução Técnica
-
-O projeto iniciou como um **script de terminal (CLI)** para simular pagamentos simples.  
-Com o tempo, foi refatorado para refletir decisões reais de engenharia:
-
-- Extração de **regras de negócio puras** para o domínio
-- Introdução de uma camada de **serviços (casos de uso)**
-- Isolamento da **persistência** em infraestrutura
-- Criação de uma **API REST com FastAPI**
-- Implementação de **testes automatizados com Pytest**
-- Padronização de contratos via **DTOs**
-- Garantia de regras financeiras reais (parcelamento, juros, descontos)
-
-Essa evolução é intencional e documentada no código.
+1. Implementação inicial de cálculos simples via CLI  
+2. Introdução de regras de parcelamento e descontos  
+3. Refatoração para arquitetura em camadas  
+4. **Atualização Profissional (v2):** regras de mercado (parcelamento sem juros) e interface CLI refinada  
 
 ---
 
 ## 🧱 Arquitetura do Projeto
 
-O projeto segue uma arquitetura modular inspirada em **Clean Architecture / Hexagonal**, mantendo dependências sempre apontando para dentro (domínio).
+Arquitetura modular inspirada em **Clean Architecture / Hexagonal**, mantendo dependências sempre apontando para dentro (domínio).
 
 ```text
 Loja_app/
-├── api/                         # 🌐 Camada de API (FastAPI)
-│   ├── main.py
-│   ├── pagamentos_api.py        # Endpoints HTTP
-│   └── dtos/                    # Contratos de entrada/saída
-│       ├── __init__.py
-│       ├── pagamento_request.py
-│       └── pagamento_response.py
+├── api/                 # 🌐 Camada de API (FastAPI)
+│   ├── main_api.py
+│   ├── pagamentos_api.py
+│   └── dtos/            # Contratos de entrada/saída
 │
-├── data/
-│   └── recibos.txt
+├── config/              # ⚙️ Configurações e taxas externas
+|   ├── settings.py              
+│   └── taxas.json       
 │
-├── domain/                      # 🧠 Regras de negócio puras
+├── domain/              # 🧠 Regras de negócio puras
 │   ├── exceptions.py
-│   ├── __init__.py 
-│   ├── recibo.py                # Entidade Recibo
-│   └── calculadora.py           # Cálculo de valores, juros e descontos
+│   ├── recibo.py        # Entidade Recibo
+│   └── calculadora.py   # Core de cálculo financeiro
 │
-├── services/                    # ⚙️ Casos de uso / Orquestração
-│   ├── __init__.py             
+├── services/            # ⚙️ Casos de uso / orquestração
 │   ├── pagamento_service.py
 │   └── recibo_repository.py
-│   
-├── infrastructure/              # 💾 Implementações técnicas
-│   ├── __init__.py           
-│   └── storage.py               # Persistência em arquivo
 │
-├── tests/                       # 🧪 Testes automatizados (Pytest)
-│   ├── __init__.py                       
+├── infrastructure/      # 💾 Implementações técnicas
+│   └── storage.py       # Persistência de arquivos
+│
+├── receipts/            # 📄 Esta pasta é ignorada pelo Git (.gitignore)
+│   └── *.json / *.txt   # Todos os arquivos gerados (JSON, TXT) são temporários e não devem ser versionados.
+│
+├── tests/               # 🧪 Testes automatizados (Pytest)
 │   ├── test_calculadora.py
 │   ├── test_recibo.py
-│   ├── test_storage.py
-│   ├── test_pagamento_service.py
-│   └── test_api_pagamentos.py
+│   └── ...
 │
-├── ui/                          # 🖥️ Interface CLI
-│   ├── __init__.py
+├── ui/                  # 🖥️ Interface CLI
 │   ├── menu.py
 │   └── validacoes.py
 │
-├── .gitignore
-├── main.py                      # Interface CLI
-├── main_api.py                  # Entry point da API FastAPI
-└── README.md
+├── .gitignore   
+├── main.py              # Entry point CLI
+├── README.md             
+└── requirements.txt
+
 ```
-## 🧩 Decisões de Design
+## 🚀 Destaques Técnicos
 
-- **Separação por camadas (domain / services / infrastructure / ui)**  
-  Para isolar regras de negócio e permitir evolução sem reescrita do núcleo.
+### API REST (FastAPI)
 
-- **Domínio independente de interface**  
-  A lógica de cálculo e geração de recibos não depende da CLI.
+- Endpoints para pagamentos, recibos e consultas
+- Documentação automática via Swagger: http://127.0.0.1:8000/docs
 
-- **Persistência simples em arquivo**  
-  Escolhida intencionalmente para manter foco nas regras de negócio e facilitar inspeção manual durante o desenvolvimento.
-  A camada está isolada para futura migração para banco de dados.
+### CLI Profissional
 
-Essas decisões priorizam clareza e testabilidade, mesmo com maior complexidade inicial.
+- Design visual com caracteres box-drawing (╔═╗)
+- Formatação de valores monetários e texto alinhado
+- Validações robustas de inputs
 
-## ⚙️ Destaques Técnicos Atuais
+### Testes Automatizados
 
-### 🚀 FastAPI
+- Cobertura das regras de negócio, serviços e persistência
+- Pytest garante segurança para refatorações
 
-A API REST representa a etapa atual de exposição dos fluxos de negócio, mantendo o projeto aberto a evoluções.
+### 🧮 Regras de Negócio
 
-- Exposição dos fluxos de pagamento via API REST
-- Documentação automática com Swagger e Redoc
-- Separação clara entre API, domínio e serviços <br>
-Acesso à documentação:
-```bash
-http://127.0.0.1:8000/docs
-```
-### 🧪 Pytest
+| Modalidade         | Condição           | Regra Aplicada                      |
+| ------------------ | ------------------ | ----------------------------------- |
+| À vista (Dinheiro) | Pagamento imediato | Desconto de 10%                     |
+| À vista (Cartão)   | Pagamento imediato | Desconto de 5%                      |
+| Parcelado Curto    | 2x até 6x          | 0% de Juros (Preço original)        |
+| Parcelado Longo    | 12x até 24x        | Acréscimo fixo de 10% sobre o total |
 
-- Cobertura completa das regras de negócio
-- Testes para:
-- - domínio (cálculos e recibos)
-- - serviços
-- - persistência
-- - API
-- Segurança para refatorações futuras
+Tentativas de parcelamento fora dos intervalos definidos resultam em uma exceção de validação (Domain Exception).
 
-## 🧮 Regras de Negócio
+## 🛣️ Como Executar o Projeto
 
-O sistema implementa regras financeiras explícitas e testáveis, incluindo:
-
-- Pagamento à vista com desconto
-- Pagamento parcelado em múltiplas parcelas
-- Cálculo automático:
-  - do valor total
-  - do valor de cada parcela
-  - da descrição da regra aplicada
-- Geração de recibo contendo:
-  - valores detalhados
-  - número de parcelas
-  - data e hora da transação
-
-Essas regras residem no domínio e não dependem da interface (CLI) ou de mecanismos de persistência.
-
-## 🚀 Como Executar o Projeto
 ### 1. Clonar o repositório:
 ```bash
 git clone https://github.com/argenis972/Loja_app.git
-```
-
-2. Acesse o diretório:
-
-```bash
 cd Loja_app
 ```
-### 2️⃣ Executar a API REST (FastAPI)
-```bash
-uvicorn main_api:app --reload
-```
-Acesse:
-- Swagger: http://127.0.0.1:8000/docs
 
-### 3️⃣ Executar a aplicação via CLI
+### 2. Executar via CLI as dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Executar via CLI:
 
 ```bash
 python main.py
 ```
-### 4️⃣ Executar os testes automatizados
+### 4. Executar a API REST (FastAPI)
+
+```bash
+uvicorn api.main_api:app --reload
+```
+Acesse:
+- Swagger: http://127.0.0.1:8000/docs
+
+### 5. Executar os testes automatizados
 
 ```bash
 pytest
@@ -192,27 +141,22 @@ Status atual:
 
 - ✅ 100% dos testes passando
 
-## 🔧 🛣️ Roadmap de Evolução
+## 🗺️ Roadmap de Evolução
 
-- ✅ Testes automatizados com pytest (concluído)
-Cobertura completa das regras de negócio, serviços e persistência.
-- ✅ API REST com FastAPI (concluído)
-Exposição dos fluxos de pagamento via endpoints HTTP.
-- 🟡 Configuração externa
-Mover taxas (% juros e descontos) para arquivos .env ou .json.
-- 🟡 Exportação de recibos
-Gerar recibos em PDF.
-- 🟡 Persistência em banco de dados
-Migrar do arquivo .txt para SQLite ou outro banco relacional.
+| Feature                                   | Status          |
+| ----------------------------------------- | --------------- |
+| Testes automatizados com pytest           | ✅ Concluído     |
+| API REST com FastAPI                      | ✅ Concluído     |
+| Configuração externa (taxas)              | ✅ Concluído     |
+| Exportação de recibos em PDF              | 🟡 Em progresso |
+| Persistência em banco (SQLite/PostgreSQL) | 🟡 Em progresso |
+
 
 ## 🧠 Filosofia do Projeto
-Este repositório não busca “atalhos”.
-Ele prioriza:
-- clareza
-- boas práticas
-- decisões conscientes
-- aprendizado sólido
-Cada refatoração é respaldada por testes.
+
+- Clareza sobre complexidade desnecessária
+- Boas práticas de design de software
+- Decisões conscientes baseadas em requisitos
 
 ## 👤 Autor 
 
@@ -221,11 +165,10 @@ Cada refatoração é respaldada por testes.
 
 ## 📬 Contato
 
-- LinkedIn: https://www.linkedin.com/in/argenis-lópez-649701304
+- LinkedIn: https://www.linkedin.com/in/argenis972/
 - E-mail: argenislopez28708256@gmail.com
 - GitHub: https://github.com/argenis972
 
 ## 📜 Licença
 
-Este projeto está sob a licença MIT. <br>
-Sinta-se livre para estudar, adaptar e evoluir.
+MIT — Sinta-se livre para estudar, adaptar e evoluir.
