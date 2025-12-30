@@ -43,7 +43,7 @@ def obter_dados_pagamento() -> Tuple[float, int, int, str]:
 
         if opcao == 4:
             print("  ┌" + "─" * 20 + "┐")
-            parcelas = pedir_input_numerico("  │ Parcelas (12-24): ", tipo=int, minimo=12, maximo=24)
+            parcelas = pedir_input_numerico("  │ Parcelas (12-24):", tipo=int, minimo=12, maximo=24)
             print("  └" + "─" * 20 + "┘")
             metodo = f"Parcelado c/ juros ({parcelas}x)"
             return valor, opcao, parcelas, metodo
@@ -57,6 +57,15 @@ def exibir_recibo(recibo: dict) -> None:
     total = recibo.get("total", 0.0)
     valor_original = recibo.get("valor_original", 0.0)
     taxas = recibo.get("taxas", "Nenhuma")
+
+    if "5.0%" in taxas:
+        taxas_formatadas = "5.0% (com desconto)"
+    elif "10.0%" in taxas and "desconto" in taxas.lower():
+        taxas_formatadas = "10.0% (com desconto)"
+    elif "10.0%" in taxas and "acréscimo" in taxas.lower():
+        taxas_formatadas = "10.0% (com acréscimo)"
+    else:
+        taxas_formatadas = taxas[:27]
 
     # Formatear fecha
     data_str = data_hora.strftime('%d/%m/%Y %H:%M:%S') if hasattr(data_hora, "strftime") else str(data_hora)
@@ -79,7 +88,7 @@ def exibir_recibo(recibo: dict) -> None:
         print(f"║ Pagamento:           {'À VISTA':>27} ║")
 
     # Resumen de Tasas y Total
-    print(f"║ Taxas Aplicadas:     {taxas[:27]:>27} ║")
+    print(f"║ Taxas Aplicadas:     {taxas_formatadas:>27} ║")
     print("╠" + "═" * 50 + "╣")
     print(f"║ TOTAL A PAGAR:       {f'R$ {total:,.2f}':>27} ║")
     print("╚" + "═" * 50 + "╝\n")

@@ -1,0 +1,9 @@
+{
+  "data_hora": "2025-12-29T23:05:20.320790",
+  "metodo": "Parcelado s/ juros (2x)",
+  "parcelas": 2,
+  "valor_da_parcela": 50.0,
+  "total": 100.0,
+  "valor_original": 100.0,
+  "taxas": "0% (Sem juros)"
+}

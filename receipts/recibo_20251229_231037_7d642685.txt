@@ -1,0 +1,9 @@
+RESUMO DO PAGAMENTO
+===================
+data_hora: 2025-12-29T23:10:37.232175
+metodo: À vista (Dinheiro)
+parcelas: 1
+valor_da_parcela: 90.0
+total: 90.0
+valor_original: 100.0
+taxas: 10.0% (Desconto à vista)
