@@ -1,5 +1,5 @@
 # 🛍️ Loja App — Evolução de Script CLI para Backend em Python
-
+![CI](https://github.com/argenis972/Loja_app/actions/workflows/tests.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20REST-009688?style=flat&logo=fastapi&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-Testes%20Automatizados-brightgreen?style=flat)
@@ -10,16 +10,17 @@
 
 ## 📌 Visão Geral
 
-**Loja App** é um **laboratório de engenharia de software backend em Python**, focado na modelagem e evolução de **regras de negócio financeiras**, especialmente no cálculo de **pagamentos parcelados** e geração de **recibos**.
+**Loja App** é um **projeto backend em Python focado na modelagem e evolução de regras de negócio financeiras**, especialmente no cálculo de pagamentos parcelados e geração de recibos.
 
-O objetivo do projeto não é entregar um sistema comercial final, mas **documentar decisões técnicas reais**, priorizando:
+> Projeto desenvolvido com foco em boas práticas de engenharia de software,
+> simulando regras reais de pagamento usadas em sistemas comerciais.
 
 - Clareza das regras de negócio  
 - Separação de responsabilidades (Clean Architecture)  
 - Testabilidade  
 - Evolução incremental  
 - Qualidade de código
-# 
+
 ---
 
 ## 🧠 Evolução do Projeto
@@ -33,7 +34,7 @@ O objetivo do projeto não é entregar um sistema comercial final, mas **documen
 
 ## 🧱 Arquitetura do Projeto
 
-Arquitetura modular inspirada em **Clean Architecture / Hexagonal**, mantendo dependências sempre apontando para dentro (domínio).
+Arquitetura modular inspirada em **Clean Architecture / Hexagonal**. As regras de negócio não dependem de frameworks, I/O ou infraestrutura.
 
 ```text
 Loja_app/
@@ -89,6 +90,7 @@ Loja_app/
 - Design visual com caracteres box-drawing (╔═╗)
 - Formatação de valores monetários e texto alinhado
 - Validações robustas de inputs
+- Implementada sem acoplamento às regras de negócio, reutilizando o mesmo core da API
 
 ### Testes Automatizados
 
@@ -104,6 +106,8 @@ Loja_app/
 | Parcelado Curto    | 2x até 6x          | 0% de Juros (Preço original)        |
 | Parcelado Longo    | 12x até 24x        | Acréscimo fixo de 10% sobre o total |
 
+As mesmas regras são aplicadas de forma consistente tanto na CLI quanto na API REST, garantindo paridade de comportamento.
+
 Tentativas de parcelamento fora dos intervalos definidos resultam em uma exceção de validação (Domain Exception).
 
 ## 🛣️ Como Executar o Projeto
@@ -114,7 +118,7 @@ git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
 ```
 
-### 2. Executar via CLI as dependencias:
+### 2. Instalar as dependências:
 
 ```bash
 pip install -r requirements.txt
@@ -133,6 +137,26 @@ uvicorn api.main:app --reload
 Acesse:
 - Swagger: http://127.0.0.1:8000/docs
 
+### Exemplo de Requisição
+
+POST /pagamentos
+
+Request:
+{
+  "opcao": 3,
+  "valor": 100,
+  "num_parcelas": 6
+}
+
+Response:
+{
+  "total": 100.00,
+  "valor_parcela": 16.67,
+  "num_parcelas": 6,
+  "taxas": "0% (Sem juros)"
+}
+
+
 ### 5. Executar os testes automatizados
 
 ```bash
@@ -149,12 +173,11 @@ Status atual:
 | Testes automatizados com pytest           | ✅ Concluído     |
 | API REST com FastAPI                      | ✅ Concluído     |
 | Configuração externa (taxas)              | ✅ Concluído     |
-| Exportação de recibos em PDF              | 🟡 Em progresso |
 | Persistência em banco (SQLite/PostgreSQL) | 🟡 Em progresso |
-
 
 ## 🧠 Filosofia do Projeto
 
+- Código pensado para evolução e manutenção, não apenas execução pontual
 - Clareza sobre complexidade desnecessária
 - Boas práticas de design de software
 - Decisões conscientes baseadas em requisitos
