@@ -8,8 +8,8 @@ def validacao_de_dados(mensagem, tipo: type, minimo=0.01):
             valor = tipo(entrada)
             if minimo is not None and valor < minimo:
                 print(
-                    "Valor inválido. Por favor, "
-                    f"digite um valor maior ou igual a {minimo}"
+                    "Valor inválido. Por favor,"
+                    f"digite um valor maior ou igual a {minimo} "
                 )
                 continue
             return valor
@@ -18,9 +18,6 @@ def validacao_de_dados(mensagem, tipo: type, minimo=0.01):
 
 
 def pedir_input_numerico(msg, tipo=int, minimo=None, maximo=None):
-    """
-    Pede um número inteiro (ou outro tipo) com limites opcionais.
-    """
     while True:
         try:
             raw = input(msg)
