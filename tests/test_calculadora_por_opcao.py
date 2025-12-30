@@ -1,5 +1,7 @@
 import pytest
+
 from domain.calculadora import Calculadora
+
 
 @pytest.mark.parametrize(
     "opcao, valor, num_parcelas, expected_total, expected_taxa_substr",
@@ -14,7 +16,9 @@ from domain.calculadora import Calculadora
         (4, 144.0, 12, 158.4, "Acréscimo"),
     ],
 )
-def test_calcular_por_opcao(opcao, valor, num_parcelas, expected_total, expected_taxa_substr):
+def test_calcular_por_opcao(
+    opcao, valor, num_parcelas, expected_total, expected_taxa_substr
+):
     # instanciamos a calculadora com as taxas do arquivo (ou aqui com valores quaisquer,
     # não usadas para regras fixas das opções 1..4)
     calc = Calculadora(desconto_vista=10.0, juros_parcelamento=2.5)
@@ -29,6 +33,8 @@ def test_calcular_por_opcao(opcao, valor, num_parcelas, expected_total, expected
     assert resultado["num_parcelas"] == num_parcelas
     assert resultado["total"] == pytest.approx(expected_total, rel=1e-3)
     # valor da parcela arredondado a 2 casas (como a entidade/funcionalidade faz)
-    assert resultado["valor_parcela"] == pytest.approx(round(expected_total / num_parcelas, 2), rel=1e-3)
+    assert resultado["valor_parcela"] == pytest.approx(
+        round(expected_total / num_parcelas, 2), rel=1e-3
+    )
     # verificar que a string de taxas contém a expectativa (não case-sensitive)
     assert expected_taxa_substr.lower() in str(resultado["taxas"]).lower()

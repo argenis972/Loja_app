@@ -1,6 +1,6 @@
 from typing import Tuple
-from .validacoes import validacao_de_dados, pedir_input_numerico
-from datetime import datetime
+
+from .validacoes import pedir_input_numerico, validacao_de_dados
 
 
 def obter_dados_pagamento() -> Tuple[float, int, int, str]:
@@ -19,7 +19,7 @@ def obter_dados_pagamento() -> Tuple[float, int, int, str]:
 
     while True:
         opcao = validacao_de_dados("  > Escolha a opção (1-4): ", int, 1)
-        
+
         if opcao not in (1, 2, 3, 4):
             print("  [!] Opção inválida. Use 1, 2, 3 ou 4.")
             continue
@@ -36,17 +36,22 @@ def obter_dados_pagamento() -> Tuple[float, int, int, str]:
 
         if opcao == 3:
             print("  ┌" + "─" * 20 + "┐")
-            parcelas = pedir_input_numerico("  │ Parcelas (2-6): ", tipo=int, minimo=2, maximo=6)
+            parcelas = pedir_input_numerico(
+                "  │ Parcelas (2-6): ", tipo=int, minimo=2, maximo=6
+            )
             print("  └" + "─" * 20 + "┘")
             metodo = f"Parcelado s/ juros ({parcelas}x)"
             return valor, opcao, parcelas, metodo
 
         if opcao == 4:
             print("  ┌" + "─" * 20 + "┐")
-            parcelas = pedir_input_numerico("  │ Parcelas (12-24):", tipo=int, minimo=12, maximo=24)
+            parcelas = pedir_input_numerico(
+                "  │ Parcelas (12-24):", tipo=int, minimo=12, maximo=24
+            )
             print("  └" + "─" * 20 + "┘")
             metodo = f"Parcelado c/ juros ({parcelas}x)"
             return valor, opcao, parcelas, metodo
+
 
 def exibir_recibo(recibo: dict) -> None:
     # Extraer datos con valores por defecto
@@ -68,22 +73,28 @@ def exibir_recibo(recibo: dict) -> None:
         taxas_formatadas = taxas[:27]
 
     # Formatear fecha
-    data_str = data_hora.strftime('%d/%m/%Y %H:%M:%S') if hasattr(data_hora, "strftime") else str(data_hora)
+    data_str = (
+        data_hora.strftime("%d/%m/%Y %H:%M:%S")
+        if hasattr(data_hora, "strftime")
+        else str(data_hora)
+    )
 
     print("\n" + "╔" + "═" * 50 + "╗")
     print(f"║{'RESUMO DO PAGAMENTO':^50}║")
     print("╠" + "═" * 50 + "╣")
-    
+
     # Información General
     print(f"║ Data/Hora:           {data_str:>27} ║")
     print(f"║ Método:              {metodo[:27]:>27} ║")
     print(f"║ Valor Original:      {f'R$ {valor_original:,.2f}':>27} ║")
-    
+
     print("╟" + "─" * 50 + "╢")
 
     # Lógica de cuotas (Parcelas)
     if parcelas > 1:
-        print(f"║ Parcelamento:        {f'{parcelas}x de R$ {valor_parcela:,.2f}':>27} ║")
+        print(
+            f"║ Parcelamento:        {f'{parcelas}x de R$ {valor_parcela:,.2f}':>27} ║"
+        )
     else:
         print(f"║ Pagamento:           {'À VISTA':>27} ║")
 

@@ -5,6 +5,7 @@ __all__ = []
 
 try:
     from .pagamento_service import PagamentoService  # type: ignore
+
     __all__.append("PagamentoService")
 except Exception:
     PagamentoService = None  # type: ignore

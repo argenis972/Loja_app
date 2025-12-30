@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from config.settings import get_settings, TaxasConfig
 from api.pagamentos_api import router as pagamentos_router
+from config.settings import TaxasConfig, get_settings
 from services.pagamento_service import PagamentoService
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,6 +26,7 @@ async def lifespan(app: FastAPI):
     )
 
     yield
+
 
 app = FastAPI(title="Loja App - Pagamentos", lifespan=lifespan)
 

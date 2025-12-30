@@ -1,13 +1,14 @@
 import json
-from pathlib import Path
-from datetime import datetime
 import uuid
-from typing import Dict, Any
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict
 
 try:
     # Import opcional — se não existir, geraremos apenas JSON e TXT
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
+
     REPORTLAB_AVAILABLE = True
 except Exception:
     REPORTLAB_AVAILABLE = False
@@ -49,6 +50,7 @@ def _gerar_pdf(path_pdf: Path, recibo: Dict[str, Any]) -> None:
     y -= 30
 
     c.setFont("Helvetica", 10)
+
     def linha(chave: str, valor: str):
         nonlocal y
         c.drawString(margem_esquerda, y, f"{chave}: {valor}")
@@ -74,8 +76,11 @@ def _gerar_pdf(path_pdf: Path, recibo: Dict[str, Any]) -> None:
 
     taxas = recibo.get("taxas", {})
     if taxas:
-        linha("Taxas", f"desconto_vista={taxas.get('desconto_vista')}%  juros_parcelamento={taxas.get('juros_parcelamento')}%")
-
+        linha(
+            "Taxas",
+            f"desconto_vista={taxas.get('desconto_vista')}% "
+            f"juros_parcelamento={taxas.get('juros_parcelamento')}%",
+        )
     # Observação final
     y -= 8
     c.setFont("Helvetica-Oblique", 8)
@@ -86,12 +91,6 @@ def _gerar_pdf(path_pdf: Path, recibo: Dict[str, Any]) -> None:
 
 
 def salvar_recibo(recibo: Dict[str, Any], dirpath: str = "receipts") -> Dict[str, str]:
-    """
-    Salva o recibo em JSON e tenta gerar também um PDF (se reportlab estiver disponível).
-    Retorna um dicionário com os caminhos gerados:
-      {"json": "receipts/2025-..._uuid.json", "pdf": "receipts/2025-..._uuid.pdf"}
-    Em caso de falha no PDF, o campo "pdf" pode estar ausente.
-    """
     base_dir = Path(dirpath)
     _ensure_dir(base_dir)
 
@@ -135,5 +134,4 @@ def salvar_recibo(recibo: Dict[str, Any], dirpath: str = "receipts") -> Dict[str
             saved["txt"] = str(txt_path)
         except Exception as e:
             saved["txt_error"] = str(e)
-
     return saved

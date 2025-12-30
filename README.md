@@ -23,6 +23,15 @@
 
 ---
 
+## 🛡️ Qualidade de Código
+
+- Formatação automática com Black
+- Imports organizados com isort
+- Validações estáticas com flake8
+- Hooks de pre-commit ativos para garantir consistência antes de cada commit
+
+---
+
 ## 🧠 Evolução do Projeto
 
 1. Implementação inicial de cálculos simples via CLI  

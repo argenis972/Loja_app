@@ -4,7 +4,7 @@ class Recibo:
         total: float,
         metodo: str,
         parcelas: int = 1,
-        informacoes_adicionais: str = ""
+        informacoes_adicionais: str = "",
     ):
         if total <= 0:
             raise ValueError("Total inválido")
@@ -19,8 +19,8 @@ class Recibo:
         self.valor_parcela = round(self.total / self.parcelas, 2)
 
         from datetime import datetime
+
         self.data_hora = datetime.now()
-    
 
     # Alias
     @property

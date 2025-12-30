@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 class Calculadora:
@@ -33,14 +33,9 @@ class Calculadora:
         if num_parcelas == 1:
             raw_total = float(valor) * (1 - (self.desconto_vista / 100.0))
         else:
-            raw_total = float(valor) * (1 + (self.juros_parcelamento / 100.0) * num_parcelas)
-        
-        if num_parcelas <= 6:
-            juros_total = 0
-        else:
-            juros_total = taxas.juros_parcelamento * num_parcelas
-
-
+            raw_total = float(valor) * (
+                1 + (self.juros_parcelamento / 100.0) * num_parcelas
+            )
         total = round(raw_total, 2)
         valor_parcela = round(total / num_parcelas, 2)
 
@@ -50,7 +45,9 @@ class Calculadora:
             "num_parcelas": num_parcelas,
         }
 
-    def calcular_por_opcao(self, opcao: int, valor: float, num_parcelas: int) -> Dict[str, Any]:
+    def calcular_por_opcao(
+        self, opcao: int, valor: float, num_parcelas: int
+    ) -> Dict[str, Any]:
         """
         Regras fixas por opção do menu.
         Retorna dicionário com: total, valor_parcela, num_parcelas, taxas, opcao
@@ -70,7 +67,9 @@ class Calculadora:
         if opcao == 1:
             # À vista em dinheiro: desconto fixo de 10%
             if num_parcelas != 1:
-                raise ValueError("Opção 1 (à vista em dinheiro) aceita apenas 1 parcela.")
+                raise ValueError(
+                    "Opção 1 (à vista em dinheiro) aceita apenas 1 parcela."
+                )
             raw_total = float(valor) * (1 - (self.DESCONTO_VISTA_FIXO / 100.0))
             taxas = f"{self.DESCONTO_VISTA_FIXO}% (Desconto à vista)"
         elif opcao == 2:
@@ -83,14 +82,22 @@ class Calculadora:
             # Parcelado 2..6 sem juros
             if not (2 <= num_parcelas <= 6):
                 sugerido = 2 if num_parcelas < 2 else 6
-                raise ValueError(f"Opção 3 suporta de 2 a 6 parcelas. Sugestão: use {sugerido} parcela(s).")
+                raise ValueError(
+                    "Opção 3 suporta de 2 a 6 parcelas. "
+                    f"Sugestão: use {sugerido} parcela(s)."
+                )
             raw_total = float(valor)
             taxas = "0% (Sem juros)"
         elif opcao == 4:
             # Parcelado 12..24 com acréscimo fixo total de 10%
             if not (12 <= num_parcelas <= 24):
                 sugerido = 12 if num_parcelas < 12 else 24
-                raise ValueError(f"Opção 4 suporta de 12 a 24 parcelas. Sugestão: use {sugerido} parcela(s).")
+
+                raise ValueError(
+                    "Opção 4 suporta de 12 a 24 parcelas."
+                    f"Sugestão: use {sugerido} parcela(s)."
+                )
+
             raw_total = float(valor) * (1 + (self.ACRESCIMO_10_PERCENT / 100.0))
             taxas = f"{self.ACRESCIMO_10_PERCENT}% (Acréscimo fixo)"
         else:

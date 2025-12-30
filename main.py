@@ -1,15 +1,15 @@
 from datetime import datetime
 from typing import Optional
-from config.settings import get_settings, TaxasConfig
-from services.pagamento_service import PagamentoService
-from ui.menu import obter_dados_pagamento, exibir_recibo
-from api.main import app
 
+from config.settings import TaxasConfig, get_settings
+from services.pagamento_service import PagamentoService
+from ui.menu import exibir_recibo, obter_dados_pagamento
 
 
 def localizar_salvamento() -> Optional[callable]:
     try:
         from infra.storage import salvar_recibo  # type: ignore
+
         return salvar_recibo
     except Exception:
         return None
@@ -22,14 +22,14 @@ def main() -> None:
     except Exception:
         taxas_conf = TaxasConfig(desconto_vista=0.0, juros_parcelamento=0.0)
 
-    # Instanciar serviço 
+    # Instanciar serviço
     service = PagamentoService(taxas_conf.desconto_vista, taxas_conf.juros_parcelamento)
 
     valor, opcao, num_parcelas, metodo = obter_dados_pagamento()
     try:
         resultado = service.calculadora.calcular_por_opcao(opcao, valor, num_parcelas)
     except (ValueError, TypeError) as exc:
-    #ui
+        # ui
         print(f"Erro: {exc}")
         return
     except Exception:

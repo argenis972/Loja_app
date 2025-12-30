@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +14,9 @@ def _validate_taxas(data: Any) -> TaxasConfig:
     if not isinstance(data, dict):
         raise TypeError("Formato inválido de taxas: esperado um objeto JSON.")
     if "desconto_vista" not in data or "juros_parcelamento" not in data:
-        raise ValueError("Arquivo de taxas deve conter 'desconto_vista' e 'juros_parcelamento'.")
+        raise ValueError(
+            "Arquivo de taxas deve conter 'desconto_vista' e 'juros_parcelamento'."
+        )
     desconto = data["desconto_vista"]
     juros = data["juros_parcelamento"]
     if not isinstance(desconto, (int, float)) or not isinstance(juros, (int, float)):

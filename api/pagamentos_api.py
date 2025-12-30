@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from config.settings import TaxasConfig
@@ -14,25 +14,27 @@ class PagamentoRequest(BaseModel):
 
 
 def get_taxas(request: Request) -> TaxasConfig:
-    """
-    Dependency que obtém as taxas carregadas no startup através de request.app.state.
-    """
     taxas = getattr(request.app.state, "taxas_config", None)
     if taxas is None:
-        raise HTTPException(status_code=500, detail="Configuração de taxas não carregada.")
+        raise HTTPException(
+            status_code=500, detail="Configuração de taxas não carregada."
+        )
     return taxas
 
 
 @router.post("/", response_model=dict)
-def criar_pagamento(req: PagamentoRequest, request: Request, taxas: TaxasConfig = Depends(get_taxas)):
+def criar_pagamento(
+    req: PagamentoRequest, request: Request, taxas: TaxasConfig = Depends(get_taxas)
+):
     """
     Usa o serviço singleton criado em app.state (se disponível) para garantir coerência com o startup.
     Chama criar_pagamento_por_opcao para aplicar exatamente as mesmas regras do domínio/CLI.
     """
     service: PagamentoService = getattr(request.app.state, "pagamento_service", None)
     if service is None:
-        # fallback: criar um serviço local com as taxas carregadas
         service = PagamentoService(taxas.desconto_vista, taxas.juros_parcelamento)
 
-    resultado = service.criar_pagamento_por_opcao(req.opcao, req.valor, req.num_parcelas)
+    resultado = service.criar_pagamento_por_opcao(
+        req.opcao, req.valor, req.num_parcelas
+    )
     return resultado

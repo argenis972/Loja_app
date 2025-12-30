@@ -1,4 +1,5 @@
 from typing import Optional
+
 from domain.calculadora import Calculadora
 
 
@@ -16,7 +17,7 @@ class PagamentoService:
         self.repo = repo
 
     def criar_pagamento(self, valor: float, num_parcelas: int):
-        
+
         resultado = self.calculadora.calcular(valor, num_parcelas)
         if self.repo:
             try:

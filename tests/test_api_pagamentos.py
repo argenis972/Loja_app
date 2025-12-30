@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+
 from api.main import app
 
 
@@ -12,8 +13,9 @@ from api.main import app
         ({"opcao": 4, "valor": 144.0, "num_parcelas": 12}, 158.4, 12, "acréscimo"),
     ],
 )
-def test_api_pagamentos_por_opcao(payload, expected_total, expected_num_parcelas, expected_taxa_substr):
-    # Garantir que o lifespan/startup seja executado usando TestClient como context manager
+def test_api_pagamentos_por_opcao(
+    payload, expected_total, expected_num_parcelas, expected_taxa_substr
+):
     with TestClient(app) as client:
         resp = client.post("/pagamentos/", json=payload)
         assert resp.status_code == 200, resp.text
@@ -27,7 +29,9 @@ def test_api_pagamentos_por_opcao(payload, expected_total, expected_num_parcelas
 
         assert data["num_parcelas"] == expected_num_parcelas
         assert data["total"] == pytest.approx(expected_total, rel=1e-3)
-        assert data["valor_parcela"] == pytest.approx(round(expected_total / expected_num_parcelas, 2), rel=1e-3)
+        assert data["valor_parcela"] == pytest.approx(
+            round(expected_total / expected_num_parcelas, 2), rel=1e-3
+        )
 
         assert expected_taxa_substr.lower() in str(data["taxas"]).lower()
 
