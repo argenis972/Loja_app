@@ -8,10 +8,6 @@ from services.pagamento_service import PagamentoService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan handler que carrega a configuração de taxas e cria um singleton do serviço.
-    A leitura do arquivo ocorre aqui (apenas neste momento).
-    """
     try:
         taxas = get_settings()
     except FileNotFoundError:
@@ -28,7 +24,6 @@ async def lifespan(app: FastAPI):
     )
 
     yield
-    # aqui pode-se fechar recursos, conexões, etc.
 
 app = FastAPI(title="Loja App - Pagamentos", lifespan=lifespan)
 

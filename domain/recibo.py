@@ -21,7 +21,7 @@ class Recibo:
         from datetime import datetime
         self.data_hora = datetime.now()
 
-    # ✅ ALIAS PARA TESTES (e compatibilidade futura)
+    # Alias
     @property
     def valor_da_parcela(self) -> float:
         return self.valor_parcela

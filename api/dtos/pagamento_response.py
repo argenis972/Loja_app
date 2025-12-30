@@ -5,5 +5,5 @@ class PagamentoResponse(BaseModel):
     total: float
     metodo: str
     descricao: str
-    parcelas: int          # ⬅️ NO Optional
-    valor_parcela: float   # ⬅️ NO Optional
+    parcelas: int          
+    valor_parcela: float   
