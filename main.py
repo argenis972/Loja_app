@@ -1,83 +1,40 @@
-
 from datetime import datetime
-from typing import Any, Callable, Optional
-
+from typing import Optional
 from config.settings import get_settings, TaxasConfig
 from services.pagamento_service import PagamentoService
-from ui import exibir_menu_principal, exibir_recibo
+from ui.menu import obter_dados_pagamento, exibir_recibo
 
 
-def localizar_funcao_persistencia() -> Optional[Callable[[dict], Any]]:
+def localizar_salvamento() -> Optional[callable]:
     try:
         from infra.storage import salvar_recibo  # type: ignore
-        return salvar_recibo  # type: ignore
+        return salvar_recibo
     except Exception:
-        pass
-
-    # 2) módulo storage com nomes comuns
-    try:
-        import storage  # type: ignore
-        for nome in ("salvar_recibo", "save_receipt", "save", "salvar"):
-            if hasattr(storage, nome):
-                return getattr(storage, nome)
-    except Exception:
-        pass
-
-    # 3) domain.recibo com classe Recibo
-    try:
-        from domain.recibo import Recibo  # type: ignore
-
-        def salvar_via_recibo(rec: dict) -> Any:
-            try:
-                inst = Recibo(rec)  # tentar instanciar
-                if hasattr(inst, "salvar"):
-                    return inst.salvar()
-                if hasattr(inst, "save"):
-                    return inst.save()
-            except TypeError:
-                if hasattr(Recibo, "salvar"):
-                    return Recibo.salvar(rec)  # type: ignore
-                if hasattr(Recibo, "save"):
-                    return Recibo.save(rec)  # type: ignore
-            raise RuntimeError("Não foi possível usar domain.Recibo para persistência.")
-        return salvar_via_recibo
-    except Exception:
-        pass
-
-    return None
+        return None
 
 
 def main() -> None:
-    # Carregar taxas (I/O apenas aqui)
+    # Carregar configuração
     try:
-        taxas: TaxasConfig = get_settings()
-    except FileNotFoundError:
-        print("Arquivo de configuração de taxas não encontrado. Usando taxas 0.0%.")
-        taxas = TaxasConfig(desconto_vista=0.0, juros_parcelamento=0.0)
-    except Exception as exc:
-        print(f"Aviso ao carregar taxas ({exc}). Usando taxas 0.0%.")
-        taxas = TaxasConfig(desconto_vista=0.0, juros_parcelamento=0.0)
+        taxas_conf: TaxasConfig = get_settings()
+    except Exception:
+        taxas_conf = TaxasConfig(desconto_vista=0.0, juros_parcelamento=0.0)
 
-    # Localiza função de persistência (se houver)
-    salvar_recibo = localizar_funcao_persistencia()
+    # Instanciar serviço 
+    service = PagamentoService(taxas_conf.desconto_vista, taxas_conf.juros_parcelamento)
 
-    # UI: obter dados do usuário (valor, método, parcelas)
-    valor_total, metodo, num_parcelas = exibir_menu_principal()
-
-    # Instanciar serviço com as taxas injetadas
-    service = PagamentoService(taxas.desconto_vista, taxas.juros_parcelamento)
-
-    # Chamar serviço e tratar erros amigáveis
+    valor, opcao, num_parcelas, metodo = obter_dados_pagamento()
     try:
-        resultado = service.criar_pagamento(valor=valor_total, num_parcelas=num_parcelas)
+        resultado = service.calculadora.calcular_por_opcao(opcao, valor, num_parcelas)
     except (ValueError, TypeError) as exc:
-        print(f"Erro ao processar pagamento: {exc}")
+    #ui
+        print(f"Erro: {exc}")
         return
     except Exception:
         print("Erro inesperado ao processar o pagamento. Tente novamente mais tarde.")
         return
 
-    # Montar recibo (dicionário)
+    # Montar recibo
     now = datetime.now()
     recibo = {
         "data_hora": now,
@@ -85,25 +42,24 @@ def main() -> None:
         "parcelas": resultado.get("num_parcelas"),
         "valor_da_parcela": resultado.get("valor_parcela"),
         "total": resultado.get("total"),
-        "valor_original": round(float(valor_total), 2),
-        "taxas": {
-            "desconto_vista": taxas.desconto_vista,
-            "juros_parcelamento": taxas.juros_parcelamento,
-        },
+        "valor_original": round(float(valor), 2),
+        "taxas": resultado.get("taxas"),
     }
 
-    # Exibir recibo via UI
+    # Delegar exibição ao UI
     exibir_recibo(recibo)
 
-    # Persistência (se disponível)
-    if salvar_recibo:
+    # Persistência (best-effort)
+    salvar = localizar_salvamento()
+    if salvar:
         try:
-            salvar_recibo(recibo)
-            print("Recibo salvo com sucesso.")
+            saved = salvar(recibo)
+            # Mensagem curta e não intrusiva
+            print("Recibo salvo em:", saved)
         except Exception as exc:
-            print(f"Aviso: falha ao salvar o recibo: {exc}")
+            print(f"Aviso: falha ao salvar recibo: {exc}")
     else:
-        print("Aviso: função de persistência não encontrada. Recibo não foi salvo.")
+        print("Aviso: persistência de recibos não disponível (infra.storage).")
 
 
 if __name__ == "__main__":
