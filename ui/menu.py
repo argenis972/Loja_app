@@ -6,7 +6,7 @@ from .validacoes import pedir_input_numerico, validacao_de_dados
 def obter_dados_pagamento() -> Tuple[float, int, int, str]:
     # Encabezado estilizado
     print("\n╔" + "═" * 50 + "╗")
-    print(f"║{ 'SISTEMA DE VENDAS - LOJA ARGENIS' :^50}║")
+    print(f"║{'SISTEMA DE VENDAS - LOJA ARGENIS':^50}║")
     print("╠" + "═" * 50 + "╣")
     print(f"║ {'[1] À vista em dinheiro (DTO 10%)':<48} ║")
     print(f"║ {'[2] À vista em cartão   (DTO 5%)':<48} ║")

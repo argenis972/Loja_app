@@ -1,8 +1,4 @@
 def validacao_de_dados(mensagem, tipo: type, minimo=0.01):
-    """
-    Valida entrada do usuário convertendo para 'tipo' e garantindo >= minimo.
-    Repetirá até uma entrada válida ser informada.
-    """
     while True:
         try:
             entrada = input(mensagem)
@@ -12,7 +8,8 @@ def validacao_de_dados(mensagem, tipo: type, minimo=0.01):
             valor = tipo(entrada)
             if minimo is not None and valor < minimo:
                 print(
-                    f"Valor inválido. Por favor, digite um valor maior ou igual a {minimo}"
+                    "Valor inválido. Por favor, "
+                    f"digite um valor maior ou igual a {minimo}"
                 )
                 continue
             return valor

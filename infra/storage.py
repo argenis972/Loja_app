@@ -119,7 +119,8 @@ def salvar_recibo(recibo: Dict[str, Any], dirpath: str = "receipts") -> Dict[str
             _gerar_pdf(pdf_path, recibo)
             saved["pdf"] = str(pdf_path)
         except Exception as e:
-            # Se falhar a geração de PDF, não interromper o fluxo; apenas reportar no retorno
+            """Se falhar a geração de PDF,
+            não interromper o fluxo; apenas reportar no retorno"""
             saved["pdf_error"] = str(e)
     else:
         # fallback: gerar um .txt simples para visualizar se não houver reportlab

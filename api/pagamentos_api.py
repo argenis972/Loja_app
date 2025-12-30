@@ -26,10 +26,6 @@ def get_taxas(request: Request) -> TaxasConfig:
 def criar_pagamento(
     req: PagamentoRequest, request: Request, taxas: TaxasConfig = Depends(get_taxas)
 ):
-    """
-    Usa o serviço singleton criado em app.state (se disponível) para garantir coerência com o startup.
-    Chama criar_pagamento_por_opcao para aplicar exatamente as mesmas regras do domínio/CLI.
-    """
     service: PagamentoService = getattr(request.app.state, "pagamento_service", None)
     if service is None:
         service = PagamentoService(taxas.desconto_vista, taxas.juros_parcelamento)
