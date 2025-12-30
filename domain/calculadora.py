@@ -34,6 +34,12 @@ class Calculadora:
             raw_total = float(valor) * (1 - (self.desconto_vista / 100.0))
         else:
             raw_total = float(valor) * (1 + (self.juros_parcelamento / 100.0) * num_parcelas)
+        
+        if num_parcelas <= 6:
+            juros_total = 0
+        else:
+            juros_total = taxas.juros_parcelamento * num_parcelas
+
 
         total = round(raw_total, 2)
         valor_parcela = round(total / num_parcelas, 2)

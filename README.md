@@ -38,7 +38,7 @@ Arquitetura modular inspirada em **Clean Architecture / Hexagonal**, mantendo de
 ```text
 Loja_app/
 ├── api/                 # 🌐 Camada de API (FastAPI)
-│   ├── main_api.py
+│   ├── main.py
 │   ├── pagamentos_api.py
 │   └── dtos/            # Contratos de entrada/saída
 │
@@ -70,7 +70,8 @@ Loja_app/
 │   ├── menu.py
 │   └── validacoes.py
 │
-├── .gitignore   
+├── .gitignore
+├── main_api.py   
 ├── main.py              # Entry point CLI
 ├── README.md             
 └── requirements.txt
@@ -127,7 +128,7 @@ python main.py
 ### 4. Executar a API REST (FastAPI)
 
 ```bash
-uvicorn api.main_api:app --reload
+uvicorn api.main:app --reload
 ```
 Acesse:
 - Swagger: http://127.0.0.1:8000/docs

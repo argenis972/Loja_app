@@ -3,6 +3,8 @@ from typing import Optional
 from config.settings import get_settings, TaxasConfig
 from services.pagamento_service import PagamentoService
 from ui.menu import obter_dados_pagamento, exibir_recibo
+from api.main import app
+
 
 
 def localizar_salvamento() -> Optional[callable]:

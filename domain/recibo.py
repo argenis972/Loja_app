@@ -20,6 +20,7 @@ class Recibo:
 
         from datetime import datetime
         self.data_hora = datetime.now()
+    
 
     # Alias
     @property
