@@ -1,9 +1,0 @@
-RESUMO DO PAGAMENTO
-===================
-data_hora: 2025-12-29T22:48:43.260696
-metodo: Parcelado c/ juros (12x)
-parcelas: 12
-valor_da_parcela: 9.17
-total: 110.0
-valor_original: 100.0
-taxas: 10.0% (Acréscimo fixo)

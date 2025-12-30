@@ -1,9 +1,0 @@
-RESUMO DO PAGAMENTO
-===================
-data_hora: 2025-12-29T22:54:53.894923
-metodo: À vista (Cartão)
-parcelas: 1
-valor_da_parcela: 95.0
-total: 95.0
-valor_original: 100.0
-taxas: 5.0% (Desconto cartão à vista)
