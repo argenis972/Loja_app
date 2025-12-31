@@ -131,7 +131,7 @@ Pré-requisitos: Python 3.12+
 ### 1. Clonar o repositório:
 
 ```bash
-git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
+git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
 ```
 
