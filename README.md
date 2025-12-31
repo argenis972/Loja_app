@@ -129,10 +129,12 @@ O sistema implementa uma tabela de decisão financeira rigorosa:
 Pré-requisitos: Python 3.12+
 
 ### 1. Clonar o repositório:
+
 ```bash
 git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
 cd Loja_app
 ```
+
 ### 2. Configurar o ambiente virtual (Recomendado)
 
 ```bash
@@ -174,17 +176,15 @@ Acesse a documentação automática:
 **Cenário:** Cliente deseja parcelar uma compra de R$ 100,00 em 6 vezes (Sem juros).
 
 **Request Body:**
-
 ```json
 {
   "opcao": 3,
-  "valor": 100,
+  "valor": 100.00,
   "num_parcelas": 6
 }
+```
 
-### Response 
-
-```md
+**Response Body:**
 ```json
 {
   "total": 100.00,
@@ -193,12 +193,14 @@ Acesse a documentação automática:
   "taxas": "0% (Sem juros)",
   "status": "aprovado"
 }
+```
 
-###  Executar os testes automatizados
+### 6. Executar os testes automatizados
 
 ```bash
 pytest
 ```
+
 Status atual:
 
 - ✅ 100% dos testes passando
