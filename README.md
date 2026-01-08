@@ -176,7 +176,14 @@ CREATE DATABASE loja_app;
 ```
 
 **Criação da tabela:**
-As tabelas são criadas automaticamente na inicialização da aplicação. Alternativamente, você pode criar manualmente:
+
+As tabelas são criadas automaticamente na inicialização da aplicação. Você também pode executar o script de setup:
+
+```bash
+python setup_database.py
+```
+
+Ou criar manualmente com SQL:
 
 ```sql
 CREATE TABLE recibos (
