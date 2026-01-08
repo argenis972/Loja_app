@@ -1,6 +1,7 @@
 
 receipts/*.json
 receipts/*.txt
+receipts/*.db
 __pycache__/
 .pytest_cache/
 .coverage

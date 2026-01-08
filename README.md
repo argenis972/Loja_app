@@ -151,14 +151,61 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Executar via CLI:
+### 4. Configurar Persistência (Opcional)
+
+O projeto suporta duas formas de persistência de recibos:
+
+#### **Opção A: Arquivo (Padrão)**
+Por padrão, os recibos são salvos em arquivo de texto. Não requer configuração adicional.
+
+#### **Opção B: PostgreSQL**
+Para usar PostgreSQL, configure a variável de ambiente `DATABASE_URL`:
+
+```bash
+# Linux/Mac
+export DATABASE_URL="postgresql://usuario:senha@localhost:5432/loja_app"
+
+# Windows (PowerShell)
+$env:DATABASE_URL="postgresql://usuario:senha@localhost:5432/loja_app"
+```
+
+**Criação do banco de dados:**
+```sql
+-- Conecte-se ao PostgreSQL e execute:
+CREATE DATABASE loja_app;
+```
+
+**Criação da tabela:**
+
+As tabelas são criadas automaticamente na inicialização da aplicação. Você também pode executar o script de setup:
+
+```bash
+python setup_database.py
+```
+
+Ou criar manualmente com SQL:
+
+```sql
+CREATE TABLE recibos (
+    id SERIAL PRIMARY KEY,
+    total FLOAT NOT NULL,
+    metodo VARCHAR(50) NOT NULL,
+    parcelas INTEGER NOT NULL DEFAULT 1,
+    informacoes_adicionais VARCHAR(500) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+**Nota:** Durante testes, o sistema usa SQLite em memória automaticamente, não requerendo PostgreSQL.
+
+### 5. Executar via CLI:
 
 Para interagir com o menu visual no terminal:
 
 ```bash
 python main.py
 ```
-### 5. Executar a API REST (FastAPI)
+### 6. Executar a API REST (FastAPI)
 
 Para subir o servidor de desenvolvimento:
 
@@ -168,6 +215,16 @@ uvicorn api.main:app --reload
 
 Acesse a documentação automática:
 - **Swagger UI**: http://127.0.0.1:8000/docs
+
+### 7. Executar os testes automatizados
+
+```bash
+pytest
+```
+
+Status atual:
+
+- ✅ 100% dos testes passando
 
 ### 📡 Exemplo de Uso da API
 
@@ -195,13 +252,7 @@ Acesse a documentação automática:
 }
 ```
 
-### 6. Executar os testes automatizados
-
-```bash
-pytest
-```
-
-Status atual:
+## 🗺️ **Roadmap de Evolução**
 
 - ✅ 100% dos testes passando
 
@@ -212,7 +263,7 @@ Status atual:
 | Testes automatizados com pytest           | ✅ **Concluído**     |
 | API REST com FastAPI                      | ✅ **Concluído**     |
 | Configuração externa (taxas)              | ✅ **Concluído**     |
-| Persistência em banco (SQLite/PostgreSQL) | 🟡 Em progresso |
+| Persistência em banco (SQLite/PostgreSQL) | ✅ **Concluído** |
 
 ## 🧠 Filosofia do Projeto
 
