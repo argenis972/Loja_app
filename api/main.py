@@ -5,11 +5,18 @@ from fastapi.responses import JSONResponse
 
 from api.pagamentos_api import router as pagamentos_router
 from config.settings import TaxasConfig, get_settings
+from infrastructure.database import create_tables
 from services.pagamento_service import PagamentoService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Create database tables on startup
+    try:
+        create_tables()
+    except Exception as exc:
+        print(f"Aviso: problema ao criar tabelas no banco: {exc}")
+
     try:
         taxas = get_settings()
     except FileNotFoundError:
