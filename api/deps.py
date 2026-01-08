@@ -4,8 +4,7 @@ import os
 
 from config.settings import TaxasConfig, get_settings
 from infrastructure.database import get_db
-from infrastructure.storage import (ArquivoReciboRepository,
-                                    PostgresReciboRepository)
+from infrastructure.storage import ArquivoReciboRepository, PostgresReciboRepository
 from services.pagamento_service import PagamentoService
 from services.recibo_repository import ReciboRepository
 

@@ -1,6 +1,5 @@
 from .menu import exibir_recibo, obter_dados_pagamento  # type: ignore
-from .validacoes import (pedir_input_numerico,  # type: ignore
-                         validacao_de_dados)
+from .validacoes import pedir_input_numerico, validacao_de_dados  # type: ignore
 
 __all__ = [
     "obter_dados_pagamento",
