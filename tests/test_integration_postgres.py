@@ -84,6 +84,7 @@ def test_database_created_with_sqlite_url():
             assert saved.total == 100.0
         finally:
             db.close()
+            engine.dispose()
 
     finally:
         # Clean up

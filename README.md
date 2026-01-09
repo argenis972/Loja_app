@@ -53,6 +53,12 @@ Loja_app/
 │   └── workflows/
 │       └── tests.yml    # 🤖 Pipeline de CI (GitHub Actions)
 │
+├── alembic/             # 🗃️ Migrações de Banco de Dados (se aplicável)
+│   ├── versions/
+│   ├── env.py
+│   ├── Readme.md
+│   └── script.py.mako
+|
 ├── api/                 # 🌐 Camada de Entrada (FastAPI)
 │   ├── main.py          # Configuração da Aplicação
 │   ├── pagamentos_api.py
@@ -71,9 +77,17 @@ Loja_app/
 │   ├── pagamento_service.py
 │   └── recibo_repository.py
 │
-├── infrastructure/      # 💾 Detalhes Técnicos
+├── infra/      # 💾 Detalhes Técnicos
 │   └── storage.py       # Implementação de persistência em arquivo
-│
+|
+├── infrastructure/
+|   ├── __init__.py
+|   ├── database.py
+|   ├── models
+|   ├── storage
+│   └── db.py/
+│         └── postgres.py 
+|
 ├── receipts/            # 📄 Saída de Arquivos (Ignorado pelo Git)
 │   └── *.json / *.txt   # Recibos gerados localmente
 │
@@ -86,7 +100,15 @@ Loja_app/
 │   ├── menu.py
 │   └── validacoes.py
 │
+├── venv/                 # Ambiente Virtual (Ignorado pelo Git)
+|
+├── .env                  # Variáveis de ambiente (Ignorado pelo Git)
+├── .flake8               # Configuração do Flake8
+├── .pre-commit-config.yaml  # Configuração do Pre-commit
+├── alembic.ini            # Configuração do Alembic
+├── IMPLEMENTATION.md      # Documentação Técnica
 ├── .gitignore
+├── setup_database.py     # Script para criação de tabelas no DB
 ├── main.py              # Entry point (CLI)
 ├── README.md
 └── requirements.txt
