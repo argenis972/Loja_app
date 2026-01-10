@@ -7,3 +7,15 @@ __pycache__/
 .coverage
 *tatus*
 .env
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# Alembic
+alembic/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db

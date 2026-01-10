@@ -1,36 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from config.settings import TaxasConfig
+from api.deps import get_pagamento_service
+from api.dtos.recibo_response import ReciboResponse
 from services.pagamento_service import PagamentoService
 
 router = APIRouter(prefix="/pagamentos", tags=["pagamentos"])
 
 
+@router.get("/", response_model=list[ReciboResponse])
+def listar_pagamentos(service: PagamentoService = Depends(get_pagamento_service)):
+    return service.listar_recibos()
+
+
 class PagamentoRequest(BaseModel):
-    opcao: int = Field(..., ge=1, le=4, description="Opção do menu (1..4)")
-    valor: float = Field(..., gt=0, description="Valor total do pagamento")
-    num_parcelas: int = Field(..., ge=1, description="Número de parcelas")
-
-
-def get_taxas(request: Request) -> TaxasConfig:
-    taxas = getattr(request.app.state, "taxas_config", None)
-    if taxas is None:
-        raise HTTPException(
-            status_code=500, detail="Configuração de taxas não carregada."
-        )
-    return taxas
+    opcao: int = Field(..., ge=1, le=4)
+    valor: float = Field(..., gt=0)
+    num_parcelas: int = Field(..., ge=1)
 
 
 @router.post("/", response_model=dict)
 def criar_pagamento(
-    req: PagamentoRequest, request: Request, taxas: TaxasConfig = Depends(get_taxas)
+    req: PagamentoRequest,
+    service: PagamentoService = Depends(get_pagamento_service),
 ):
-    service: PagamentoService = getattr(request.app.state, "pagamento_service", None)
-    if service is None:
-        service = PagamentoService(taxas.desconto_vista, taxas.juros_parcelamento)
-
-    resultado = service.criar_pagamento_por_opcao(
-        req.opcao, req.valor, req.num_parcelas
-    )
-    return resultado
+    return service.criar_pagamento_por_opcao(req.opcao, req.valor, req.num_parcelas)

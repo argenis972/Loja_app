@@ -1,6 +1,3 @@
-# domain/exceptions.py
-
-
 class LojaAppError(Exception):
     """Base para todos os erros da aplicação."""
 
