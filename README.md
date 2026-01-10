@@ -1,119 +1,56 @@
-# 🛍️ Loja App — Backend Python para Regras de Pagamento
+# 🛍️ Loja App — Calculadora de Pagamentos em Python
 
 ![CI](https://github.com/argenis972/Loja_app/actions/workflows/tests.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20REST-009688?style=flat&logo=fastapi&logoColor=white)
 ![Pytest](https://img.shields.io/badge/Pytest-Testes%20Automatizados-brightgreen?style=flat)
-![Status](https://img.shields.io/badge/Status-Estável-success)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
 ## 📌 Visão Geral
 
-**Loja App** é um **projeto backend em Python focado na modelagem e evolução de regras de negócio financeiras**, especialmente no cálculo de pagamentos parcelados e geração de recibos.
+**Loja App** é um projeto backend em **Python** para **cálculo de pagamentos parcelados**, com foco em regras de negócio financeiras reutilizáveis entre **CLI** e **API REST**.
 
-> Projeto desenvolvido com foco em boas práticas de engenharia de software,
-> simulando regras reais de pagamento utilizadas em sistemas comerciais de varejo.
+Principais pontos:
 
-* **Clareza das regras de negócio:** Lógica financeira desacoplada da interface.
-* **Clean Architecture:** Separação estrita entre Domínio, Serviços e Infraestrutura.
-* **Testabilidade:** Cobertura de testes unitários e de integração.
-* **Qualidade de código:** Padrões rigorosos de linting e formatação.
-
----
-
-## 🛡️ Qualidade de Código
-
-Este projeto segue padrões rigorosos de desenvolvimento Python moderno:
-
-* **Black:** Formatação de código intransigente.
-* **Isort:** Organização automática de importações.
-* **Flake8:** Análise estática para detecção de erros de estilo e lógica.
-* **Pre-commit:** Hooks ativos para garantir consistência antes de cada commit.
+- **Regras de negócio desacopladas** (camada `domain`).
+- **Arquitetura em camadas** (domain / services / infra).
+- **API REST** com FastAPI.
+- **Testes automatizados** com pytest e pipeline de CI.
 
 ---
 
-## 🧠 Evolução do Projeto
-
-1.  **MVP (v1):** Implementação inicial de cálculos via CLI simples.
-2.  **Regras de Negócio:** Introdução de lógica de parcelamento e descontos condicionais.
-3.  **Refatoração (v2):** Adoção de arquitetura em camadas e desacoplamento.
-4.  **Profissionalização (Atual):** API REST (FastAPI), CLI refinada e testes automatizados (CI/CD).
-
----
-
-## 🧱 Arquitetura do Projeto
-
-A arquitetura é modular, inspirada em **Clean Architecture / Hexagonal**. As regras de negócio (Domínio) não dependem de frameworks, I/O ou infraestrutura externa.
+## 🧱 Estrutura do Projeto (atual)
 
 ```text
 Loja_app/
 ├── .github/
 │   └── workflows/
-│       └── tests.yml    # 🤖 Pipeline de CI (GitHub Actions)
-│
-├── api/                 # 🌐 Camada de Entrada (FastAPI)
-│   ├── main.py          # Configuração da Aplicação
-│   ├── pagamentos_api.py
-│   └── dtos/            # Contratos de dados (Pydantic Models)
-│
-├── config/              # ⚙️ Configurações Externas
-│   ├── settings.py
-│   └── taxas.json       # Tabela de juros parametrizável
-│
-├── domain/              # 🧠 Core Business (Puro Python)
-│   ├── exceptions.py
-│   ├── recibo.py        # Entidade de Domínio
-│   └── calculadora.py   # Motor de cálculo financeiro
-│
-├── services/            # ⚙️ Casos de Uso
-│   ├── pagamento_service.py
-│   └── recibo_repository.py
-│
-├── infrastructure/      # 💾 Detalhes Técnicos
-│   └── storage.py       # Implementação de persistência em arquivo
-│
-├── receipts/            # 📄 Saída de Arquivos (Ignorado pelo Git)
-│   └── *.json / *.txt   # Recibos gerados localmente
-│
-├── tests/               # 🧪 Suíte de Testes
-│   ├── test_calculadora.py
-│   ├── test_recibo.py
-│   └── ...
-│
-├── ui/                  # 🖥️ Interface de Usuário (CLI)
-│   ├── menu.py
-│   └── validacoes.py
-│
+│       └── tests.yml
+├── api/
+├── config/
+├── domain/
+├── infra/
+├── infrastructure/
+├── services/
+├── tests/
+├── ui/
+├── .flake8
 ├── .gitignore
-├── main.py              # Entry point (CLI)
+├── .pre-commit-config.yaml
+├── app.log
+├── main.py
+├── main_api.py
 ├── README.md
 └── requirements.txt
 ```
-## 🚀 Destaques Técnicos
 
-### API REST (FastAPI)
+> Observação: a listagem acima reflete a estrutura presente na branch **main**.
 
-- Endpoints otimizados para cálculo de pagamentos e emissão de recibos.
-- Validação de dados automática com Pydantic.
-- Documentação interativa nativa (Swagger UI).
+---
 
-### CLI Profissional
-
-- Design visual aprimorado com caracteres box-drawing (╔═╗).
-- Formatação monetária (R$) e alinhamento tabular.
-- Reutilização do mesmo core domain da API, garantindo consistência.
-
-### Testes Automatizados
-
-- Testes unitários para regras de cálculo.
-- Testes de integração para fluxo de serviços.
-- Execução automática via GitHub Actions.
-
-### 🧮 Regras de Negócio
-
-O sistema implementa uma tabela de decisão financeira rigorosa:
+## 🧮 Regras de Negócio (resumo)
 
 | Modalidade         | Condição           | Regra Aplicada                      |
 | ------------------ | ------------------ | ----------------------------------- |
@@ -122,20 +59,22 @@ O sistema implementa uma tabela de decisão financeira rigorosa:
 | Parcelado Curto    | 2x até 6x          | 0% de Juros (Preço original)        |
 | Parcelado Longo    | 12x até 24x        | Acréscimo fixo de 10% sobre o total |
 
-**⚠️ Nota:** Tentativas de parcelamento fora dos intervalos permitidos (ex: 7x a 11x) resultam em uma exceção de domínio (Validation Error).
+**Nota:** Parcelamentos fora dos intervalos permitidos (ex: 7x a 11x) devem gerar erro/validação no domínio.
 
-## 🛣️ Como Executar o Projeto
+---
 
-Pré-requisitos: Python 3.12+
+## 🛠️ Como Executar
 
-### 1. Clonar o repositório:
+Pré-requisitos: **Python 3.12+**
+
+### 1) Clonar
 
 ```bash
 git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
 ```
 
-### 2. Configurar o ambiente virtual (Recomendado)
+### 2) Ambiente virtual
 
 ```bash
 python -m venv venv
@@ -145,92 +84,66 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instalar dependências
+### 3) Instalar dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Executar via CLI:
+---
 
-Para interagir com o menu visual no terminal:
+## ▶️ Executar via CLI
 
 ```bash
 python main.py
 ```
-### 5. Executar a API REST (FastAPI)
 
-Para subir o servidor de desenvolvimento:
+---
+
+## 🌐 Executar API REST
+
+Há dois entrypoints no repositório:
+
+- `api.main:app` (módulo dentro da pasta `api/`)
+- `main_api.py` (arquivo na raiz)
+
+Use o que fizer sentido para seu ambiente.
+
+### Opção A (recomendado):
 
 ```bash
 uvicorn api.main:app --reload
 ```
 
-Acesse a documentação automática:
-- **Swagger UI**: http://127.0.0.1:8000/docs
+### Opção B:
 
-### 📡 Exemplo de Uso da API
-
-**Endpoint**: POST /pagamentos
-
-**Cenário:** Cliente deseja parcelar uma compra de R$ 100,00 em 6 vezes (Sem juros).
-
-**Request Body:**
-```json
-{
-  "opcao": 3,
-  "valor": 100.00,
-  "num_parcelas": 6
-}
+```bash
+uvicorn main_api:app --reload
 ```
 
-**Response Body:**
-```json
-{
-  "total": 100.00,
-  "valor_parcela": 16.67,
-  "num_parcelas": 6,
-  "taxas": "0% (Sem juros)",
-  "status": "aprovado"
-}
-```
+Documentação automática:
 
-### 6. Executar os testes automatizados
+- Swagger UI: http://127.0.0.1:8000/docs
+
+---
+
+## 🧪 Testes
 
 ```bash
 pytest
 ```
 
-Status atual:
+---
 
-- ✅ 100% dos testes passando
+## 👤 Autor
 
-## 🗺️ **Roadmap de Evolução**
-
-| Feature                                   | Status          |
-| ----------------------------------------- | --------------- |
-| Testes automatizados com pytest           | ✅ **Concluído**     |
-| API REST com FastAPI                      | ✅ **Concluído**     |
-| Configuração externa (taxas)              | ✅ **Concluído**     |
-| Persistência em banco (SQLite/PostgreSQL) | 🟡 Em progresso |
-
-## 🧠 Filosofia do Projeto
-
-- **Evolutividade:** Código pensado para manutenção a longo prazo, não apenas execução pontual.
-- **Simplicidade:** Evitar complexidade acidental; usar a ferramenta certa para o trabalho.
-- **Consistência:** A regra de negócio é a verdade única, independente da interface (CLI ou API).
-
-## 👤 Autor 
-
-**Argenis López** <br />
-
-*Backend Developer — Python.*
-
-## 📬 Contato
+**Argenis López**
 
 - LinkedIn: https://www.linkedin.com/in/argenis972/
 - E-mail: argenislopez28708256@gmail.com
 - GitHub: https://github.com/argenis972
+
+---
 
 ## 📜 Licença
 
