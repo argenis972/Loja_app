@@ -1,58 +1,56 @@
-# 🛍️ Loja App — Backend Python para Regras de Pagamento
+# 🛍️ Loja App — Python Backend for Financial Business Rules
 
 ![CI](https://github.com/argenis972/Loja_app/actions/workflows/tests.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API%20REST-009688?style=flat&logo=fastapi&logoColor=white)
-![Pytest](https://img.shields.io/badge/Pytest-Testes%20Automatizados-brightgreen?style=flat)
-![Status](https://img.shields.io/badge/Status-Estável-success)
+![Pytest](https://img.shields.io/badge/Pytest-Automated%20Tests-brightgreen?style=flat)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?style=flat&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
----
-
-## 📌 Visão Geral
-
-**Loja App** é um **projeto backend em Python focado na modelagem e evolução de regras de negócio financeiras**, especialmente no cálculo de pagamentos parcelados e geração de recibos.
-
-> Projeto desenvolvido com foco em boas práticas de engenharia de software,
-> simulando regras reais de pagamento utilizadas em sistemas comerciais de varejo.
-
-* **Clareza das regras de negócio:** Lógica financeira desacoplada da interface.
-* **Clean Architecture:** Separação estrita entre Domínio, Serviços e Infraestrutura.
-* **Testabilidade:** Cobertura de testes unitários e de integração.
-* **Qualidade de código:** Padrões rigorosos de linting e formatação.
+> **Branch note:** this README reflects the structure and features of the **`Criar_PostgreSQL`** branch.
 
 ---
 
-## 🛡️ Qualidade de Código
+## 📌 Overview
 
-Este projeto segue padrões rigorosos de desenvolvimento Python moderno:
+**Loja App** is a **Python backend project focused on financial business rules**, especially installment payment calculation and receipt persistence.
 
-* **Black:** Formatação de código intransigente.
-* **Isort:** Organização automática de importações.
-* **Flake8:** Análise estática para detecção de erros de estilo e lógica.
-* **Pre-commit:** Hooks ativos para garantir consistência antes de cada commit.
+Key goals:
 
----
-
-## 🧠 Evolução do Projeto
-
-1.  **MVP (v1):** Implementação inicial de cálculos via CLI simples.
-2.  **Regras de Negócio:** Introdução de lógica de parcelamento e descontos condicionais.
-3.  **Refatoração (v2):** Adoção de arquitetura em camadas e desacoplamento.
-4.  **Profissionalização (Atual):** API REST (FastAPI), CLI refinada e testes automatizados (CI/CD).
+- **Business rules first**: domain logic is isolated from frameworks and I/O.
+- **Layered architecture**: domain / services / infrastructure (and adapters).
+- **Multiple entrypoints**: CLI + REST API sharing the same core domain.
+- **Automated tests + CI**: fast feedback and regression safety.
 
 ---
 
-## 🧱 Arquitetura do Projeto
+## 🧠 Project Evolution
 
-A arquitetura é modular, inspirada em **Clean Architecture / Hexagonal**. As regras de negócio (Domínio) não dependem de frameworks, I/O ou infraestrutura externa.
+1. **MVP (v1):** initial payment calculation via a simple CLI.
+2. **Business Rules:** introduced installment rules + conditional discounts.
+3. **Refactor (v2):** moved to a layered architecture and decoupled components.
+4. **Production-ready direction (current):** FastAPI REST + persistence with PostgreSQL + CI.
+
+---
+
+## 🧱 Architecture (no magic, just separation)
+
+The project is inspired by **Clean Architecture / Hexagonal** principles:
+
+- The **domain** does not depend on frameworks, databases, or UI.
+- **services** orchestrate use cases.
+- **infrastructure** implements technical details (database, persistence).
+- **CLI/API** are adapters that consume the same domain and services.
+
+### Current repository structure (`Criar_PostgreSQL`)
 
 ```text
 Loja_app/
 ├── .github/
 │   └── workflows/
-│       └── tests.yml    # 🤖 Pipeline de CI (GitHub Actions)
+│       └── tests.yml                  # CI pipeline (GitHub Actions)
 │
+<<<<<<< HEAD
 ├── alembic/             # 🗃️ Migrações de Banco de Dados (se aplicável)
 │   ├── versions/
 │   ├── env.py
@@ -63,20 +61,32 @@ Loja_app/
 │   ├── main.py          # Configuração da Aplicação
 │   ├── pagamentos_api.py
 │   └── dtos/            # Contratos de dados (Pydantic Models)
+=======
+├── alembic/                           # Database migrations (Alembic)
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/
+>>>>>>> main
 │
-├── config/              # ⚙️ Configurações Externas
+├── api/                               # REST API (FastAPI)
+│   ├── main.py                        # FastAPI app
+│   ├── pagamentos_api.py              # routes/endpoints
+│   └── dtos/                          # Pydantic models (DTOs)
+│
+├── config/                            # External configuration
 │   ├── settings.py
-│   └── taxas.json       # Tabela de juros parametrizável
+│   └── taxas.json                     # interest rates table (configurable)
 │
-├── domain/              # 🧠 Core Business (Puro Python)
+├── domain/                            # Pure business core
+│   ├── calculadora.py                 # financial calculation engine
 │   ├── exceptions.py
-│   ├── recibo.py        # Entidade de Domínio
-│   └── calculadora.py   # Motor de cálculo financeiro
+│   └── recibo.py                      # domain entity
 │
-├── services/            # ⚙️ Casos de Uso
+├── services/                          # Use cases
 │   ├── pagamento_service.py
 │   └── recibo_repository.py
 │
+<<<<<<< HEAD
 ├── infra/      # 💾 Detalhes Técnicos
 │   └── storage.py       # Implementação de persistência em arquivo
 |
@@ -90,16 +100,24 @@ Loja_app/
 |
 ├── receipts/            # 📄 Saída de Arquivos (Ignorado pelo Git)
 │   └── *.json / *.txt   # Recibos gerados localmente
+=======
+├── infra/                             # Legacy/local persistence implementation
+│   └── storage.py
 │
-├── tests/               # 🧪 Suíte de Testes
-│   ├── test_calculadora.py
-│   ├── test_recibo.py
-│   └── ...
+├── infrastructure/                    # Technical infrastructure (DB, persistence)
+│   ├── __init__.py
+│   ├── database.py
+│   ├── models.py
+│   ├── storage.py
+│   └── db/
+>>>>>>> main
 │
-├── ui/                  # 🖥️ Interface de Usuário (CLI)
+├── tests/                             # test suite
+├── ui/                                # CLI
 │   ├── menu.py
 │   └── validacoes.py
 │
+<<<<<<< HEAD
 ├── venv/                 # Ambiente Virtual (Ignorado pelo Git)
 |
 ├── .env                  # Variáveis de ambiente (Ignorado pelo Git)
@@ -112,67 +130,68 @@ Loja_app/
 ├── main.py              # Entry point (CLI)
 ├── README.md
 └── requirements.txt
+=======
+├── alembic.ini
+├── setup_database.py
+├── main.py                            # CLI entrypoint
+├── requirements.txt
+├── IMPLEMENTATION_SUMMARY.md
+├── .flake8
+├── .pre-commit-config.yaml
+├── .gitignore
+└── README.md
+>>>>>>> main
 ```
-## 🚀 Destaques Técnicos
 
-### API REST (FastAPI)
+> Note on naming: this branch currently contains both `infra/` and `infrastructure/`.  
+> `infrastructure/` is the main place for DB-related code; `infra/` still exists in the repo and is documented accordingly.
 
-- Endpoints otimizados para cálculo de pagamentos e emissão de recibos.
-- Validação de dados automática com Pydantic.
-- Documentação interativa nativa (Swagger UI).
+---
 
-### CLI Profissional
+## 🧮 Business Rules (explicit by design)
 
-- Design visual aprimorado com caracteres box-drawing (╔═╗).
-- Formatação monetária (R$) e alinhamento tabular.
-- Reutilização do mesmo core domain da API, garantindo consistência.
+| Payment Mode        | Condition         | Applied Rule                         |
+| ------------------- | ----------------- | ------------------------------------ |
+| Cash (Upfront)      | immediate payment | 10% discount                         |
+| Card (Upfront)      | immediate payment | 5% discount                          |
+| Short Installments  | 2x to 6x          | 0% interest (original price)         |
+| Long Installments   | 12x to 24x        | fixed 10% increase over the total    |
 
-### Testes Automatizados
+**⚠️ Validation:** installment attempts outside the allowed ranges (e.g., 7x to 11x) must raise a domain validation error.
 
-- Testes unitários para regras de cálculo.
-- Testes de integração para fluxo de serviços.
-- Execução automática via GitHub Actions.
+---
 
-### 🧮 Regras de Negócio
+## 🛠️ Setup & Run
 
-O sistema implementa uma tabela de decisão financeira rigorosa:
+Requirements: **Python 3.12+**
 
-| Modalidade         | Condição           | Regra Aplicada                      |
-| ------------------ | ------------------ | ----------------------------------- |
-| À vista (Dinheiro) | Pagamento imediato | Desconto de 10%                     |
-| À vista (Cartão)   | Pagamento imediato | Desconto de 5%                      |
-| Parcelado Curto    | 2x até 6x          | 0% de Juros (Preço original)        |
-| Parcelado Longo    | 12x até 24x        | Acréscimo fixo de 10% sobre o total |
-
-**⚠️ Nota:** Tentativas de parcelamento fora dos intervalos permitidos (ex: 7x a 11x) resultam em uma exceção de domínio (Validation Error).
-
-## 🛣️ Como Executar o Projeto
-
-Pré-requisitos: Python 3.12+
-
-### 1. Clonar o repositório:
+### 1) Clone and checkout this branch
 
 ```bash
 git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
+git checkout Criar_PostgreSQL
 ```
 
-### 2. Configurar o ambiente virtual (Recomendado)
+### 2) Create and activate a virtualenv
 
 ```bash
 python -m venv venv
+
 # Windows:
 .\venv\Scripts\activate
+
 # Linux/Mac:
 source venv/bin/activate
 ```
 
-### 3. Instalar dependências
+### 3) Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
+<<<<<<< HEAD
 ### 4. Configurar Persistência (Opcional)
 
 O projeto suporta duas formas de persistência de recibos:
@@ -221,23 +240,63 @@ CREATE TABLE recibos (
 **Nota:** Durante testes, o sistema usa SQLite em memória automaticamente, não requerendo PostgreSQL.
 
 ### 5. Executar via CLI:
+=======
+---
+>>>>>>> main
 
-Para interagir com o menu visual no terminal:
+## 🗄️ PostgreSQL (Persistence)
+
+Configure:
+
+```bash
+# Linux/Mac
+export DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
+
+# Windows (PowerShell)
+$env:DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
+```
+
+Create the database:
+
+```sql
+CREATE DATABASE loja_app;
+```
+
+### Option A (recommended): Alembic migrations
+
+```bash
+alembic upgrade head
+```
+
+### Option B: setup script
+
+```bash
+python setup_database.py
+```
+
+---
+
+## ▶️ Run CLI
 
 ```bash
 python main.py
 ```
+<<<<<<< HEAD
 ### 6. Executar a API REST (FastAPI)
+=======
+>>>>>>> main
 
-Para subir o servidor de desenvolvimento:
+---
+
+## 🌐 Run REST API (FastAPI)
 
 ```bash
 uvicorn api.main:app --reload
 ```
 
-Acesse a documentação automática:
-- **Swagger UI**: http://127.0.0.1:8000/docs
+Swagger UI:
 
+<<<<<<< HEAD
 ### 7. Executar os testes automatizados
 
 ```bash
@@ -249,12 +308,25 @@ Status atual:
 - ✅ 100% dos testes passando
 
 ### 📡 Exemplo de Uso da API
+=======
+- http://127.0.0.1:8000/docs
+>>>>>>> main
 
-**Endpoint**: POST /pagamentos
+---
 
-**Cenário:** Cliente deseja parcelar uma compra de R$ 100,00 em 6 vezes (Sem juros).
+## 🧪 Run tests
 
-**Request Body:**
+```bash
+pytest
+```
+
+---
+
+## 📡 API Example
+
+**Endpoint**: `POST /pagamentos`
+
+**Request**
 ```json
 {
   "opcao": 3,
@@ -263,7 +335,7 @@ Status atual:
 }
 ```
 
-**Response Body:**
+**Response (example)**
 ```json
 {
   "total": 100.00,
@@ -274,12 +346,27 @@ Status atual:
 }
 ```
 
+<<<<<<< HEAD
 ## 🗺️ **Roadmap de Evolução**
+=======
+---
 
-- ✅ 100% dos testes passando
+## 🗺️ Roadmap
 
-## 🗺️ **Roadmap de Evolução**
+| Feature                                     | Status      |
+| ------------------------------------------- | ----------- |
+| Automated tests (pytest)                    | ✅ Done      |
+| REST API with FastAPI                       | ✅ Done      |
+| External configuration (rates table)         | ✅ Done      |
+| PostgreSQL persistence                       | ✅ Done      |
+| Alembic migrations                           | ✅ Done      |
+>>>>>>> main
 
+---
+
+## 👤 Author
+
+<<<<<<< HEAD
 | Feature                                   | Status          |
 | ----------------------------------------- | --------------- |
 | Testes automatizados com pytest           | ✅ **Concluído**     |
@@ -300,11 +387,16 @@ Status atual:
 *Backend Developer — Python.*
 
 ## 📬 Contato
+=======
+**Argenis López**
+>>>>>>> main
 
 - LinkedIn: https://www.linkedin.com/in/argenis972/
 - E-mail: argenislopez28708256@gmail.com
 - GitHub: https://github.com/argenis972
 
-## 📜 Licença
+---
 
-MIT — Sinta-se livre para estudar, adaptar e evoluir.
+## 📜 License
+
+MIT — feel free to study, adapt and evolve.

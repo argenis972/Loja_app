@@ -9,13 +9,16 @@ __pycache__/
 .env
 *.pyc
 
-# Virtual environment
+# virtualenv
 venv/
 .env
 
-# Alembic
-alembic/__pycache__/
+# local data
+receipts/
+*.db
+*.log
 
 # OS
-.DS_Store
-Thumbs.db
+__pycache__/
+*.pyc
+
