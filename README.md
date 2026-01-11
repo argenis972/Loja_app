@@ -1,4 +1,4 @@
-# 🛍️ Loja App — Python Backend for Financial Business Rules
+# 🛍️ Loja App — Python Backend (Learning Lab) for Financial Business Rules
 
 ![CI](https://github.com/argenis972/Loja_app/actions/workflows/tests.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
@@ -7,40 +7,27 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?style=flat&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> **Branch note:** this README reflects the structure and features of the **`Criar_PostgreSQL`** branch.
+> **Branch note:** this README reflects the structure and features of the **`Criar_PostgreSQL`** branch.  
+> **Scope note:** this is a **learning/lab project** (not a production-ready system).
 
 ---
 
 ## 📌 Overview
 
-**Loja App** is a **Python backend project focused on financial business rules**, especially installment payment calculation and receipt persistence.
+**Loja App** is a **Python backend lab** focused on practicing:
 
-Key goals:
-
-- **Business rules first**: domain logic is isolated from frameworks and I/O.
-- **Layered architecture**: domain / services / infrastructure (and adapters).
-- **Multiple entrypoints**: CLI + REST API sharing the same core domain.
-- **Automated tests + CI**: fast feedback and regression safety.
-
----
-
-## 🧠 Project Evolution
-
-1. **MVP (v1):** initial payment calculation via a simple CLI.
-2. **Business Rules:** introduced installment rules + conditional discounts.
-3. **Refactor (v2):** moved to a layered architecture and decoupled components.
-4. **Production-ready direction (current):** FastAPI REST + persistence with PostgreSQL + CI.
+- installment payment calculation (with constraints)
+- receipt persistence (file/DB)
+- separation of domain rules from I/O (CLI + API)
 
 ---
 
 ## 🧱 Architecture (no magic, just separation)
 
-The project is inspired by **Clean Architecture / Hexagonal** principles:
-
-- The **domain** does not depend on frameworks, databases, or UI.
-- **services** orchestrate use cases.
-- **infrastructure** implements technical details (database, persistence).
-- **CLI/API** are adapters that consume the same domain and services.
+- **domain/**: pure rules and entities
+- **services/**: use cases
+- **infrastructure/**: DB/persistence details
+- **ui/** and **api/**: adapters over the same core
 
 ### Current repository structure (`Criar_PostgreSQL`)
 
@@ -50,23 +37,10 @@ Loja_app/
 │   └── workflows/
 │       └── tests.yml                  # CI pipeline (GitHub Actions)
 │
-<<<<<<< HEAD
-├── alembic/             # 🗃️ Migrações de Banco de Dados (se aplicável)
-│   ├── versions/
-│   ├── env.py
-│   ├── Readme.md
-│   └── script.py.mako
-|
-├── api/                 # 🌐 Camada de Entrada (FastAPI)
-│   ├── main.py          # Configuração da Aplicação
-│   ├── pagamentos_api.py
-│   └── dtos/            # Contratos de dados (Pydantic Models)
-=======
 ├── alembic/                           # Database migrations (Alembic)
 │   ├── env.py
 │   ├── script.py.mako
 │   └── versions/
->>>>>>> main
 │
 ├── api/                               # REST API (FastAPI)
 │   ├── main.py                        # FastAPI app
@@ -86,21 +60,6 @@ Loja_app/
 │   ├── pagamento_service.py
 │   └── recibo_repository.py
 │
-<<<<<<< HEAD
-├── infra/      # 💾 Detalhes Técnicos
-│   └── storage.py       # Implementação de persistência em arquivo
-|
-├── infrastructure/
-|   ├── __init__.py
-|   ├── database.py
-|   ├── models
-|   ├── storage
-│   └── db.py/
-│         └── postgres.py 
-|
-├── receipts/            # 📄 Saída de Arquivos (Ignorado pelo Git)
-│   └── *.json / *.txt   # Recibos gerados localmente
-=======
 ├── infra/                             # Legacy/local persistence implementation
 │   └── storage.py
 │
@@ -110,27 +69,12 @@ Loja_app/
 │   ├── models.py
 │   ├── storage.py
 │   └── db/
->>>>>>> main
 │
 ├── tests/                             # test suite
 ├── ui/                                # CLI
 │   ├── menu.py
 │   └── validacoes.py
 │
-<<<<<<< HEAD
-├── venv/                 # Ambiente Virtual (Ignorado pelo Git)
-|
-├── .env                  # Variáveis de ambiente (Ignorado pelo Git)
-├── .flake8               # Configuração do Flake8
-├── .pre-commit-config.yaml  # Configuração do Pre-commit
-├── alembic.ini            # Configuração do Alembic
-├── IMPLEMENTATION.md      # Documentação Técnica
-├── .gitignore
-├── setup_database.py     # Script para criação de tabelas no DB
-├── main.py              # Entry point (CLI)
-├── README.md
-└── requirements.txt
-=======
 ├── alembic.ini
 ├── setup_database.py
 ├── main.py                            # CLI entrypoint
@@ -140,24 +84,23 @@ Loja_app/
 ├── .pre-commit-config.yaml
 ├── .gitignore
 └── README.md
->>>>>>> main
 ```
 
-> Note on naming: this branch currently contains both `infra/` and `infrastructure/`.  
-> `infrastructure/` is the main place for DB-related code; `infra/` still exists in the repo and is documented accordingly.
+> Note: this branch contains both `infra/` and `infrastructure/`.  
+> `infrastructure/` is the main place for DB-related code.
 
 ---
 
-## 🧮 Business Rules (explicit by design)
+## 🧮 Business Rules
 
-| Payment Mode        | Condition         | Applied Rule                         |
-| ------------------- | ----------------- | ------------------------------------ |
-| Cash (Upfront)      | immediate payment | 10% discount                         |
-| Card (Upfront)      | immediate payment | 5% discount                          |
-| Short Installments  | 2x to 6x          | 0% interest (original price)         |
-| Long Installments   | 12x to 24x        | fixed 10% increase over the total    |
+| Payment Mode        | Condition         | Applied Rule                      |
+| ------------------- | ----------------- | --------------------------------- |
+| Cash (Upfront)      | immediate payment | 10% discount                      |
+| Card (Upfront)      | immediate payment | 5% discount                       |
+| Short Installments  | 2x to 6x          | 0% interest (original price)      |
+| Long Installments   | 12x to 24x        | fixed 10% increase over the total |
 
-**⚠️ Validation:** installment attempts outside the allowed ranges (e.g., 7x to 11x) must raise a domain validation error.
+**Validation:** installment attempts outside allowed ranges (e.g., 7x to 11x) must raise a domain validation error.
 
 ---
 
@@ -165,88 +108,25 @@ Loja_app/
 
 Requirements: **Python 3.12+**
 
-### 1) Clone and checkout this branch
-
 ```bash
 git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
 git checkout Criar_PostgreSQL
-```
 
-### 2) Create and activate a virtualenv
-
-```bash
 python -m venv venv
-
 # Windows:
 .\venv\Scripts\activate
-
 # Linux/Mac:
 source venv/bin/activate
-```
 
-### 3) Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-<<<<<<< HEAD
-### 4. Configurar Persistência (Opcional)
+> `requirements.txt` is intentionally simple for this lab: it may include runtime + dev/test tools together (not a strict prod-only list nor a lockfile).
 
-O projeto suporta duas formas de persistência de recibos:
-
-#### **Opção A: Arquivo (Padrão)**
-Por padrão, os recibos são salvos em arquivo de texto. Não requer configuração adicional.
-
-#### **Opção B: PostgreSQL**
-Para usar PostgreSQL, configure a variável de ambiente `DATABASE_URL`:
-
-```bash
-# Linux/Mac
-export DATABASE_URL="postgresql://usuario:senha@localhost:5432/loja_app"
-
-# Windows (PowerShell)
-$env:DATABASE_URL="postgresql://usuario:senha@localhost:5432/loja_app"
-```
-
-**Criação do banco de dados:**
-```sql
--- Conecte-se ao PostgreSQL e execute:
-CREATE DATABASE loja_app;
-```
-
-**Criação da tabela:**
-
-As tabelas são criadas automaticamente na inicialização da aplicação. Você também pode executar o script de setup:
-
-```bash
-python setup_database.py
-```
-
-Ou criar manualmente com SQL:
-
-```sql
-CREATE TABLE recibos (
-    id SERIAL PRIMARY KEY,
-    total FLOAT NOT NULL,
-    metodo VARCHAR(50) NOT NULL,
-    parcelas INTEGER NOT NULL DEFAULT 1,
-    informacoes_adicionais VARCHAR(500) NOT NULL DEFAULT '',
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-
-**Nota:** Durante testes, o sistema usa SQLite em memória automaticamente, não requerendo PostgreSQL.
-
-### 5. Executar via CLI:
-=======
 ---
->>>>>>> main
 
 ## 🗄️ PostgreSQL (Persistence)
-
-Configure:
 
 ```bash
 # Linux/Mac
@@ -255,8 +135,6 @@ export DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
 # Windows (PowerShell)
 $env:DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
 ```
-
-Create the database:
 
 ```sql
 CREATE DATABASE loja_app;
@@ -281,10 +159,6 @@ python setup_database.py
 ```bash
 python main.py
 ```
-<<<<<<< HEAD
-### 6. Executar a API REST (FastAPI)
-=======
->>>>>>> main
 
 ---
 
@@ -294,23 +168,7 @@ python main.py
 uvicorn api.main:app --reload
 ```
 
-Swagger UI:
-
-<<<<<<< HEAD
-### 7. Executar os testes automatizados
-
-```bash
-pytest
-```
-
-Status atual:
-
-- ✅ 100% dos testes passando
-
-### 📡 Exemplo de Uso da API
-=======
-- http://127.0.0.1:8000/docs
->>>>>>> main
+- Swagger UI: http://127.0.0.1:8000/docs
 
 ---
 
@@ -322,11 +180,12 @@ pytest
 
 ---
 
-## 📡 API Example
+## 📡 API Examples
 
-**Endpoint**: `POST /pagamentos`
+### ✅ Happy path (example)
 
-**Request**
+`POST /pagamentos`
+
 ```json
 {
   "opcao": 3,
@@ -335,7 +194,6 @@ pytest
 }
 ```
 
-**Response (example)**
 ```json
 {
   "total": 100.00,
@@ -346,50 +204,75 @@ pytest
 }
 ```
 
-<<<<<<< HEAD
-## 🗺️ **Roadmap de Evolução**
-=======
+### ❌ Error: invalid installments
+
+```json
+{
+  "opcao": 3,
+  "valor": 100.00,
+  "num_parcelas": 10
+}
+```
+
+```json
+{
+  "detail": "Número de parcelas inválido: permitido 2 a 6 ou 12 a 24."
+}
+```
+
+### ❌ Error: negative value
+
+```json
+{
+  "opcao": 1,
+  "valor": -50.0,
+  "num_parcelas": 1
+}
+```
+
+```json
+{
+  "detail": "Valor deve ser maior que zero."
+}
+```
+
+### ❌ Error: nonexistent option
+
+```json
+{
+  "opcao": 99,
+  "valor": 100.0,
+  "num_parcelas": 1
+}
+```
+
+```json
+{
+  "detail": "Opção de pagamento inválida."
+}
+```
+
+> Note: exact error payloads/status codes depend on how API maps domain exceptions (this is a lab, so these details can evolve).
+
 ---
 
 ## 🗺️ Roadmap
 
-| Feature                                     | Status      |
-| ------------------------------------------- | ----------- |
-| Automated tests (pytest)                    | ✅ Done      |
-| REST API with FastAPI                       | ✅ Done      |
-| External configuration (rates table)         | ✅ Done      |
-| PostgreSQL persistence                       | ✅ Done      |
-| Alembic migrations                           | ✅ Done      |
->>>>>>> main
+| Area | Item | Status |
+| --- | --- | --- |
+| Core | Installment rules + validation | ✅ Done |
+| API | FastAPI endpoints | ✅ Done |
+| Persistence | PostgreSQL + migrations (Alembic) | ✅ Done |
+| Tests | Pytest + CI | ✅ Done |
+| Future | Improve domain→API error mapping (status codes + error types) | 🔜 Next |
+| Future | Async DB experiments (async SQLAlchemy / asyncpg) | 🔜 Next |
+| Future | Auth exploration (JWT / sessions) | 🔜 Next |
 
 ---
 
 ## 👤 Author
 
-<<<<<<< HEAD
-| Feature                                   | Status          |
-| ----------------------------------------- | --------------- |
-| Testes automatizados com pytest           | ✅ **Concluído**     |
-| API REST com FastAPI                      | ✅ **Concluído**     |
-| Configuração externa (taxas)              | ✅ **Concluído**     |
-| Persistência em banco (SQLite/PostgreSQL) | ✅ **Concluído** |
-
-## 🧠 Filosofia do Projeto
-
-- **Evolutividade:** Código pensado para manutenção a longo prazo, não apenas execução pontual.
-- **Simplicidade:** Evitar complexidade acidental; usar a ferramenta certa para o trabalho.
-- **Consistência:** A regra de negócio é a verdade única, independente da interface (CLI ou API).
-
-## 👤 Autor 
-
-**Argenis López** <br />
-
-*Backend Developer — Python.*
-
-## 📬 Contato
-=======
 **Argenis López**
->>>>>>> main
 
 - LinkedIn: https://www.linkedin.com/in/argenis972/
 - E-mail: argenislopez28708256@gmail.com
