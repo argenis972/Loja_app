@@ -25,17 +25,15 @@ def aplicar_migracoes() -> None:
 
 @pytest.fixture(scope="function")
 def client():
-    """
-    Cliente de teste para a API usando Postgres.
+    database_url = os.getenv("DATABASE_URL")
 
-    Limpa a tabela a cada teste para manter isolamento e evitar efeitos colaterais.
-    """
-    db = SessionLocal()
-    try:
-        db.execute(text("TRUNCATE TABLE recibos RESTART IDENTITY;"))
-        db.commit()
-    finally:
-        db.close()
+    if database_url:
+        db = SessionLocal()
+        try:
+            db.execute(text("TRUNCATE TABLE recibos RESTART IDENTITY;"))
+            db.commit()
+        finally:
+            db.close()
 
     with TestClient(app) as c:
         yield c
