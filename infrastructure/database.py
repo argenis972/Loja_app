@@ -11,7 +11,15 @@ from infrastructure.db.models.recibo_model import ReciboModel  # noqa: F401
 
 def _get_database_url() -> str:
     database_url = os.getenv("DATABASE_URL", "").strip()
+
     if not database_url:
+        # Verifica se estamos rodando um teste (Pytest define essa variável)
+        # Ou se estamos no ambiente do GitHub Actions
+        if "PYTEST_CURRENT_TEST" in os.environ or os.getenv("GITHUB_ACTIONS") == "true":
+            # Retorna uma URL fictícia
+            #  apenas para permitir a importação do módulo nos testes
+            return "postgresql+psycopg://postgres:postgres@localhost:5432/test_db"
+
         raise RuntimeError(
             "DATABASE_URL não configurada. Exemplo: "
             "postgresql+psycopg://usuario:senha@localhost:5432/loja_db"

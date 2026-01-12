@@ -17,7 +17,7 @@
 **Loja App** is a **Python backend lab** focused on practicing:
 
 - installment payment calculation (with constraints)
-- receipt persistence (file/DB)
+- receipt persistence (**PostgreSQL**)
 - separation of domain rules from I/O (CLI + API)
 
 ---
@@ -35,8 +35,10 @@
 Loja_app/
 ├── .github/
 │   └── workflows/
-│       └── tests.yml                  # CI pipeline (GitHub Actions)
-│
+|        ├── ci.yml
+|        ├── python-app.yml
+│        └── tests.yml                 # CI pipeline (GitHub Actions)
+|                 
 ├── alembic/                           # Database migrations (Alembic)
 │   ├── env.py
 │   ├── script.py.mako
@@ -45,6 +47,7 @@ Loja_app/
 ├── api/                               # REST API (FastAPI)
 │   ├── main.py                        # FastAPI app
 │   ├── pagamentos_api.py              # routes/endpoints
+│   ├── deps.py                        # DI (Postgres-only repository)
 │   └── dtos/                          # Pydantic models (DTOs)
 │
 ├── config/                            # External configuration
@@ -60,17 +63,21 @@ Loja_app/
 │   ├── pagamento_service.py
 │   └── recibo_repository.py
 │
-├── infra/                             # Legacy/local persistence implementation
-│   └── storage.py
-│
 ├── infrastructure/                    # Technical infrastructure (DB, persistence)
 │   ├── __init__.py
-│   ├── database.py
-│   ├── models.py
-│   ├── storage.py
+│   ├── database.py                    # SQLAlchemy session/engine + DATABASE_URL resolution
+│   ├── models.py                      # compatibility module (if kept) / public re-exports
+│   ├── storage.py                     # PostgresReciboRepository
+|   ├── storage_cli.py                 # CLI-specific repository impl (if kept)
 │   └── db/
+│       ├── base.py
+|       ├── postgres.py
+│       ├── mappers/
+│       └── models/
 │
-├── tests/                             # test suite
+├── tests/                             # test suite (Postgres + Alembic)
+│   └── conftest.py                    # migrates + truncates between tests
+│
 ├── ui/                                # CLI
 │   ├── menu.py
 │   └── validacoes.py
@@ -85,9 +92,6 @@ Loja_app/
 ├── .gitignore
 └── README.md
 ```
-
-> Note: this branch contains both `infra/` and `infrastructure/`.  
-> `infrastructure/` is the main place for DB-related code.
 
 ---
 
@@ -128,28 +132,27 @@ pip install -r requirements.txt
 
 ## 🗄️ PostgreSQL (Persistence)
 
-```bash
-# Linux/Mac
-export DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
-
-# Windows (PowerShell)
-$env:DATABASE_URL="postgresql://user:password@localhost:5432/loja_app"
-```
-
+### 1) Create database
 ```sql
-CREATE DATABASE loja_app;
+CREATE DATABASE loja_db;
+CREATE DATABASE loja_test_db;
 ```
 
-### Option A (recommended): Alembic migrations
+### 2) Configure `DATABASE_URL`
 
+**Windows (PowerShell):**
+```powershell
+$env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_db"
+```
+
+**Linux/Mac:**
+```bash
+export DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_db"
+```
+
+### 3) Run migrations (recommended)
 ```bash
 alembic upgrade head
-```
-
-### Option B: setup script
-
-```bash
-python setup_database.py
 ```
 
 ---
@@ -160,21 +163,33 @@ python setup_database.py
 python main.py
 ```
 
+> The CLI uses the same core rules/services and persists receipts in Postgres.
+
 ---
 
 ## 🌐 Run REST API (FastAPI)
 
 ```bash
-uvicorn api.main:app --reload
+uvicorn api.main:app --reload --no-use-colors
 ```
 
 - Swagger UI: http://127.0.0.1:8000/docs
 
 ---
 
-## 🧪 Run tests
+## 🧪 Run tests (Postgres + Alembic)
 
+Tests expect `DATABASE_URL` to point to a **test database**:
+
+**Windows (PowerShell):**
+```powershell
+$env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_test_db"
+pytest
+```
+
+**Linux/Mac:**
 ```bash
+export DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_test_db"
 pytest
 ```
 
@@ -184,7 +199,7 @@ pytest
 
 ### ✅ Happy path (example)
 
-`POST /pagamentos`
+`POST /pagamentos/`
 
 ```json
 {
@@ -220,43 +235,32 @@ pytest
 }
 ```
 
-### ❌ Error: negative value
+---
 
-```json
-{
-  "opcao": 1,
-  "valor": -50.0,
-  "num_parcelas": 1
-}
-```
+## 🧠 CI Root Cause & Fix (DATABASE_URL at import time)
 
-```json
-{
-  "detail": "Valor deve ser maior que zero."
-}
-```
+### Root cause
+The project validates DB configuration **at import time** (module import).  
+In GitHub Actions, `DATABASE_URL` is not defined by default.
 
-### ❌ Error: nonexistent option
+**Failure mechanics:**
+- `pytest` loads `tests/conftest.py`
+- which imports the FastAPI app (`api.main`)
+- which imports `infrastructure/database.py`
+- which evaluates `_get_database_url()`
+- and raises a fatal `RuntimeError` before tests start if `DATABASE_URL` is missing.
 
-```json
-{
-  "opcao": 99,
-  "valor": 100.0,
-  "num_parcelas": 1
-}
-```
+### Fix
+The initialization became **context-aware**:
+- It detects automation/testing contexts (e.g., `PYTEST_CURRENT_TEST` and `GITHUB_ACTIONS`)
+- When detected and `DATABASE_URL` is missing, it uses a safe default test URL (instead of crashing)
+- The `RuntimeError` remains for real/runtime environments to prevent starting without DB configuration
 
-```json
-{
-  "detail": "Opção de pagamento inválida."
-}
-```
-
-> Note: exact error payloads/status codes depend on how API maps domain exceptions (this is a lab, so these details can evolve).
+> This is intentionally kept simple as a lab approach.
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Status (Project close)
 
 | Area | Item | Status |
 | --- | --- | --- |
@@ -264,9 +268,6 @@ pytest
 | API | FastAPI endpoints | ✅ Done |
 | Persistence | PostgreSQL + migrations (Alembic) | ✅ Done |
 | Tests | Pytest + CI | ✅ Done |
-| Future | Improve domain→API error mapping (status codes + error types) | 🔜 Next |
-| Future | Async DB experiments (async SQLAlchemy / asyncpg) | 🔜 Next |
-| Future | Auth exploration (JWT / sessions) | 🔜 Next |
 
 ---
 
