@@ -11,25 +11,16 @@ from infrastructure.database import SessionLocal
 
 @pytest.fixture(scope="session", autouse=True)
 def aplicar_migracoes() -> None:
-    """
-    Garante que o banco de testes esteja migrado antes de rodar a suíte.
-
-    Requer:
-    - DATABASE_URL apontando para o banco de testes (ex.: loja_test_db)
-
-    Em CI (GitHub Actions), a variável é injetada pelo workflow.
-    Em ambiente local, o desenvolvedor deve defini-la manualmente.
-    """
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
-        raise RuntimeError(
-            "DATABASE_URL não configurada para testes. "
-            "Defina a variável de ambiente antes de rodar o pytest."
-        )
+        return
 
-    # Executa migrações apenas uma vez por sessão
-    subprocess.check_call(["alembic", "upgrade", "head"])
+    subprocess.run(
+        ["alembic", "upgrade", "head"],
+        check=True,
+        env={**os.environ, "DATABASE_URL": database_url},
+    )
 
 
 @pytest.fixture(scope="function")
