@@ -16,10 +16,19 @@ def aplicar_migracoes() -> None:
 
     Requer:
     - DATABASE_URL apontando para o banco de testes (ex.: loja_test_db)
-    """
-    if not os.getenv("DATABASE_URL"):
-        raise RuntimeError("DATABASE_URL não configurada para testes.")
 
+    Em CI (GitHub Actions), a variável é injetada pelo workflow.
+    Em ambiente local, o desenvolvedor deve defini-la manualmente.
+    """
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL não configurada para testes. "
+            "Defina a variável de ambiente antes de rodar o pytest."
+        )
+
+    # Executa migrações apenas uma vez por sessão
     subprocess.check_call(["alembic", "upgrade", "head"])
 
 
