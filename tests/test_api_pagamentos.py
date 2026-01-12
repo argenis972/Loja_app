@@ -1,7 +1,4 @@
 import pytest
-from fastapi.testclient import TestClient
-
-from api.main import app
 
 
 @pytest.mark.parametrize(
@@ -14,27 +11,20 @@ from api.main import app
     ],
 )
 def test_api_pagamentos_por_opcao(
-    payload, expected_total, expected_num_parcelas, expected_taxa_substr
+    client, payload, expected_total, expected_num_parcelas, expected_taxa_substr
 ):
-    with TestClient(app) as client:
-        resp = client.post("/pagamentos/", json=payload)
-        assert resp.status_code == 200, resp.text
+    resp = client.post("/pagamentos/", json=payload)
+    assert resp.status_code == 200, resp.text
 
-        data = resp.json()
-        # chaves essenciais
-        assert "total" in data
-        assert "valor_parcela" in data
-        assert "num_parcelas" in data
-        assert "taxas" in data
+    data = resp.json()
+    assert "total" in data
+    assert "valor_parcela" in data
+    assert "num_parcelas" in data
+    assert "taxas" in data
 
-        assert data["num_parcelas"] == expected_num_parcelas
-        assert data["total"] == pytest.approx(expected_total, rel=1e-3)
-        assert data["valor_parcela"] == pytest.approx(
-            round(expected_total / expected_num_parcelas, 2), rel=1e-3
-        )
-
-        assert expected_taxa_substr.lower() in str(data["taxas"]).lower()
-
-        # se o endpoint incluir "opcao" no retorno, validar coerência (não obrigatório)
-        if "opcao" in data:
-            assert data["opcao"] == payload["opcao"]
+    assert data["num_parcelas"] == expected_num_parcelas
+    assert data["total"] == pytest.approx(expected_total, rel=1e-3)
+    assert data["valor_parcela"] == pytest.approx(
+        round(expected_total / expected_num_parcelas, 2), rel=1e-3
+    )
+    assert expected_taxa_substr.lower() in str(data["taxas"]).lower()

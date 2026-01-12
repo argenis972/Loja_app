@@ -1,33 +1,19 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 
 from domain.recibo import Recibo
+from infrastructure.db.models.recibo_model import ReciboModel
 from services.recibo_repository import ReciboRepository
 
 
-class ArquivoReciboRepository(ReciboRepository):
-    """File-based repository for Recibo persistence."""
-
-    def __init__(self, caminho: str):
-        self.caminho = caminho
-
-    def salvar(self, recibo: Recibo) -> None:
-        with open(self.caminho, "a") as f:
-            f.write(f"{recibo}\n")
-
-    def listar_todos(self):
-        # Sem leitura estruturada no armazenamento em arquivo atual
-        return []
-
-
 class PostgresReciboRepository(ReciboRepository):
-    """PostgreSQL-based repository for Recibo persistence using SQLAlchemy."""
+    """Repositório PostgreSQL para persistência de Recibo via SQLAlchemy."""
 
     def __init__(self, db_session: Session):
         self.db = db_session
 
     def salvar(self, recibo: Recibo) -> None:
-        from infrastructure.models import ReciboModel
-
         db_recibo = ReciboModel(
             total=recibo.total,
             metodo=recibo.metodo,
@@ -40,7 +26,9 @@ class PostgresReciboRepository(ReciboRepository):
         self.db.commit()
         self.db.refresh(db_recibo)
 
-    def listar_todos(self):
-        from infrastructure.models import ReciboModel
-
-        return self.db.query(ReciboModel).order_by(ReciboModel.created_at.desc()).all()
+    def listar_todos(self) -> List[ReciboModel]:
+        return (
+            self.db.query(ReciboModel)
+            .order_by(ReciboModel.created_at.desc())
+            .all()
+        )

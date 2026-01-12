@@ -1,67 +1,60 @@
-from datetime import datetime
-from typing import Optional
+import os
 
 from config.settings import TaxasConfig, get_settings
+from infrastructure.database import SessionLocal
+from infrastructure.storage import PostgresReciboRepository
 from services.pagamento_service import PagamentoService
 from ui.menu import exibir_recibo, obter_dados_pagamento
 
 
-def localizar_salvamento() -> Optional[callable]:
-    try:
-        from infra.storage import salvar_recibo  # type: ignore
-
-        return salvar_recibo
-    except Exception:
-        return None
-
-
 def main() -> None:
-    # Carregar configuração
+    """
+    CLI persistindo no Postgres.
+
+    Requer:
+    - DATABASE_URL configurada (ex: postgresql+psycopg://...)
+    - Postgres acessível
+    - Migrações já aplicadas (alembic upgrade head)
+    """
+    # Carregar configuraç��o
     try:
         taxas_conf: TaxasConfig = get_settings()
     except Exception:
         taxas_conf = TaxasConfig(desconto_vista=0.0, juros_parcelamento=0.0)
 
-    # Instanciar serviço
-    service = PagamentoService(taxas_conf.desconto_vista, taxas_conf.juros_parcelamento)
+    if not os.getenv("DATABASE_URL"):
+        raise RuntimeError(
+            "DATABASE_URL não configurada. Exemplo: "
+            "postgresql+psycopg://loja_user:SENHA@localhost:5432/loja_db"
+        )
 
-    valor, opcao, num_parcelas, metodo = obter_dados_pagamento()
+    db = SessionLocal()
     try:
-        resultado = service.calculadora.calcular_por_opcao(opcao, valor, num_parcelas)
-    except (ValueError, TypeError) as exc:
-        # ui
-        print(f"Erro: {exc}")
-        return
-    except Exception:
-        print("Erro inesperado ao processar o pagamento. Tente novamente mais tarde.")
-        return
+        repo = PostgresReciboRepository(db)
+        service = PagamentoService(
+            taxas_conf.desconto_vista,
+            taxas_conf.juros_parcelamento,
+            repo,
+        )
 
-    # Montar recibo
-    now = datetime.now()
-    recibo = {
-        "data_hora": now,
-        "metodo": metodo,
-        "parcelas": resultado.get("num_parcelas"),
-        "valor_da_parcela": resultado.get("valor_parcela"),
-        "total": resultado.get("total"),
-        "valor_original": round(float(valor), 2),
-        "taxas": resultado.get("taxas"),
-    }
+        valor, opcao, num_parcelas, metodo = obter_dados_pagamento()
 
-    # Delegar exibição ao UI
-    exibir_recibo(recibo)
+        # Este método agora persiste no Postgres (via repo.salvar)
+        resultado = service.criar_pagamento_por_opcao(opcao, valor, num_parcelas)
 
-    # Persistência (best-effort)
-    salvar = localizar_salvamento()
-    if salvar:
-        try:
-            saved = salvar(recibo)
-            # Mensagem curta e não intrusiva
-            print("Recibo salvo em:", saved)
-        except Exception as exc:
-            print(f"Aviso: falha ao salvar recibo: {exc}")
-    else:
-        print("Aviso: persistência de recibos não disponível (infra.storage).")
+        # Exibir no console (UI usa dict)
+        recibo_view = {
+            "metodo": metodo,
+            "parcelas": resultado.get("num_parcelas"),
+            "valor_da_parcela": resultado.get("valor_parcela"),
+            "total": resultado.get("total"),
+            "taxas": resultado.get("taxas"),
+        }
+        exibir_recibo(recibo_view)
+
+        print("Recibo persistido no Postgres com sucesso.")
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":
