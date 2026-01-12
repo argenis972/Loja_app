@@ -58,7 +58,9 @@ class PagamentoService:
         self._persistir(recibo)
         return resultado
 
-    def criar_pagamento_por_opcao(self, opcao: int, valor: float, num_parcelas: int) -> dict:
+    def criar_pagamento_por_opcao(
+        self, opcao: int, valor: float, num_parcelas: int
+    ) -> dict:
         resultado = self.calculadora.calcular_por_opcao(opcao, valor, num_parcelas)
 
         metodo_por_opcao = {

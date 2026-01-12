@@ -27,8 +27,4 @@ class PostgresReciboRepository(ReciboRepository):
         self.db.refresh(db_recibo)
 
     def listar_todos(self) -> List[ReciboModel]:
-        return (
-            self.db.query(ReciboModel)
-            .order_by(ReciboModel.created_at.desc())
-            .all()
-        )
+        return self.db.query(ReciboModel).order_by(ReciboModel.created_at.desc()).all()

@@ -41,9 +41,11 @@ def get_db() -> Generator:
     finally:
         db.close()
 
+
 def create_tables() -> None:
     """Cria todas as tabelas (use migrações/alembic preferencialmente)."""
     Base.metadata.create_all(bind=engine)
+
 
 @contextmanager
 def session_scope() -> Generator:
