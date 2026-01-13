@@ -50,11 +50,13 @@ class PagamentoService:
         resultado = self.calculadora.calcular(valor, num_parcelas)
 
         recibo = Recibo(
+            valor_original=valor,
             total=float(resultado["total"]),
             metodo="Pagamento",
             parcelas=int(resultado.get("num_parcelas", num_parcelas)),
             informacoes_adicionais=str(resultado.get("taxas", "")),
         )
+
         self._persistir(recibo)
         return resultado
 
@@ -72,10 +74,11 @@ class PagamentoService:
         metodo = metodo_por_opcao.get(opcao, "Pagamento")
 
         recibo = Recibo(
+            valor_original=valor,
             total=float(resultado["total"]),
             metodo=metodo,
             parcelas=int(resultado.get("num_parcelas", num_parcelas)),
-            informacoes_adicionais=str(resultado.get("taxas", "")),
         )
+
         self._persistir(recibo)
         return resultado

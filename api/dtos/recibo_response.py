@@ -12,7 +12,8 @@ class ReciboResponse(BaseModel):
     parcelas: int
     informacoes_adicionais: str = ""
     valor_parcela: float
-    created_at: datetime | None = None
+
+    data_hora = Column(DateTime, server_default=sa.func.now(), nullable=False)
 
     # Compatibilidad con tu schema mostrado en Swagger
     data_hora: datetime | None = None

@@ -2,19 +2,22 @@ import os
 import subprocess
 
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
 from api.main import app
 from infrastructure.database import SessionLocal, init_db
 
+# Carga EXCLUSIVAMENTE el env de test
+load_dotenv(".env.test", override=True)
 
-@pytest.fixture(scope="session")
+
+@pytest.fixture(scope="session", autouse=True)
 def db_migrated():
     database_url = os.getenv("DATABASE_URL")
-
     if not database_url:
-        pytest.skip("DATABASE_URL não configurada")
+        raise RuntimeError("DATABASE_URL não configurada para testes")
 
     subprocess.run(
         ["alembic", "upgrade", "head"],
@@ -27,7 +30,7 @@ def db_migrated():
 
 
 @pytest.fixture(scope="function")
-def db_session(db_migrated):
+def db_session():
     db = SessionLocal()
     try:
         db.execute(text("TRUNCATE TABLE recibos RESTART IDENTITY;"))
