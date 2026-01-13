@@ -9,40 +9,42 @@ from infrastructure.db.base import Base  # noqa: F401
 from infrastructure.db.models.recibo_model import ReciboModel  # noqa: F401
 
 
-def _get_database_url() -> str:
-    database_url = os.getenv("DATABASE_URL", "").strip()
+def get_database_url() -> str:
+    database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
-        # Verifica se estamos rodando um teste (Pytest define essa variável)
-        # Ou se estamos no ambiente do GitHub Actions
-        if "PYTEST_CURRENT_TEST" in os.environ or os.getenv("GITHUB_ACTIONS") == "true":
-            # Retorna uma URL fictícia
-            #  apenas para permitir a importação do módulo nos testes
-            return "postgresql+psycopg://postgres:postgres@localhost:5432/test_db"
-
         raise RuntimeError(
-            "DATABASE_URL não configurada. Exemplo: "
-            "postgresql+psycopg://usuario:senha@localhost:5432/loja_db"
+            "DATABASE_URL não configurada. "
+            "Exemplo: postgresql+psycopg://usuario:senha@localhost:5432/loja_db"
         )
     return database_url
 
 
-DATABASE_URL = _get_database_url()
+def get_engine():
+    return create_engine(
+        get_database_url(),
+        echo=False,
+    )
 
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,
-)
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+engine = None
+SessionLocal = None
+
+
+def init_db():
+    global engine, SessionLocal
+
+    if engine is None:
+        engine = get_engine()
+        SessionLocal = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=engine,
+        )
 
 
 def get_db() -> Generator:
-    """Dependência do FastAPI que fornece uma sessão."""
+    init_db()
     db = SessionLocal()
     try:
         yield db
@@ -51,13 +53,13 @@ def get_db() -> Generator:
 
 
 def create_tables() -> None:
-    """Cria todas as tabelas (use migrações/alembic preferencialmente)."""
+    init_db()
     Base.metadata.create_all(bind=engine)
 
 
 @contextmanager
 def session_scope() -> Generator:
-    """Context manager para consumidores fora do FastAPI (ex.: CLI)."""
+    init_db()
     db = SessionLocal()
     try:
         yield db
