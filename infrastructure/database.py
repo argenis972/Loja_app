@@ -9,7 +9,7 @@ from config.settings import settings
 from infrastructure.db.base import Base
 from infrastructure.db.models.recibo_models import ReciboModel  # noqa: F401
 
-engine = create_engine(settings.DATABASE_URL, future=True)
+engine = create_engine(settings.database_url, future=True)
 
 SessionLocal = sessionmaker(
     autocommit=False,
