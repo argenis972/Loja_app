@@ -5,49 +5,53 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from sqlalchemy import engine_from_config, pool
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, pool
 
 from alembic import context
 
-# ─────────────────────────────────────────────
-# PYTHONPATH
-# ─────────────────────────────────────────────
+# --------------------------------------------------
+# Path fix (required)
+# --------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE_DIR))
 
-# ─────────────────────────────────────────────
-# CONFIG
-# ─────────────────────────────────────────────
+# --------------------------------------------------
+# Load env
+# --------------------------------------------------
+
+if os.getenv("PYTEST_CURRENT_TEST"):
+    load_dotenv(".env.test", override=True)
+else:
+    load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL must be set for Alembic migrations")
+
+# --------------------------------------------------
+# Alembic config
+# --------------------------------------------------
 
 config = context.config
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# ─────────────────────────────────────────────
-# DATABASE URL (ONLY ENV VARS)
-# ─────────────────────────────────────────────
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL must be set for Alembic migrations")
-
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
-
-# ─────────────────────────────────────────────
-# METADATA
-# ─────────────────────────────────────────────
+# --------------------------------------------------
+# Metadata
+# --------------------------------------------------
 
 from infrastructure.db.base import Base  # noqa: E402
 from infrastructure.db.models import recibo_models  # noqa: E402
 
 target_metadata = Base.metadata
 
-# ─────────────────────────────────────────────
-# MIGRATIONS
-# ─────────────────────────────────────────────
+# --------------------------------------------------
+# Offline migrations
+# --------------------------------------------------
 
 
 def run_migrations_offline() -> None:
@@ -62,14 +66,18 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+# --------------------------------------------------
+# Online migrations (psycopg3)
+# --------------------------------------------------
+
+
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        {"sqlalchemy.url": DATABASE_URL},
-        prefix="sqlalchemy.",
+    engine = create_engine(
+        DATABASE_URL,
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
+    with engine.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
@@ -79,6 +87,8 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
+
+# --------------------------------------------------
 
 if context.is_offline_mode():
     run_migrations_offline()
