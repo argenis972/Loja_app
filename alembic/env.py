@@ -5,13 +5,19 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
 # ─────────────────────────────────────────────
-# CONFIG ALEMBIC
+# PYTHONPATH
+# ─────────────────────────────────────────────
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(BASE_DIR))
+
+# ─────────────────────────────────────────────
+# CONFIG
 # ─────────────────────────────────────────────
 
 config = context.config
@@ -20,50 +26,33 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # ─────────────────────────────────────────────
-# AJUSTE DO PYTHONPATH
+# DATABASE URL (ONLY ENV VARS)
 # ─────────────────────────────────────────────
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(BASE_DIR))
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL must be set for Alembic migrations")
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # ─────────────────────────────────────────────
-# VARIÁVEIS DE AMBIENTE
-# ─────────────────────────────────────────────
-
-if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("GITHUB_ACTIONS"):
-    load_dotenv(".env.test", override=True)
-else:
-    load_dotenv()
-
-# ─────────────────────────────────────────────
-# IMPORTS DO PROJETO
+# METADATA
 # ─────────────────────────────────────────────
 
 from infrastructure.db.base import Base  # noqa: E402
-from infrastructure.db.models import recibo_models  # noqa: E402,F401
+from infrastructure.db.models import recibo_models  # noqa: E402
 
 target_metadata = Base.metadata
 
 # ─────────────────────────────────────────────
-# DATABASE URL
-# ─────────────────────────────────────────────
-
-
-def get_database_url() -> str:
-    url = os.getenv("DATABASE_URL")
-    if not url:
-        raise RuntimeError("DATABASE_URL is required for Alembic migrations")
-    return url
-
-
-# ─────────────────────────────────────────────
-# OFFLINE MIGRATIONS
+# MIGRATIONS
 # ─────────────────────────────────────────────
 
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=get_database_url(),
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
@@ -73,17 +62,9 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-# ─────────────────────────────────────────────
-# ONLINE MIGRATIONS
-# ─────────────────────────────────────────────
-
-
 def run_migrations_online() -> None:
-    configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_database_url()
-
     connectable = engine_from_config(
-        configuration,
+        {"sqlalchemy.url": DATABASE_URL},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

@@ -1,7 +1,10 @@
 name: Tests
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -24,12 +27,7 @@ jobs:
           --health-retries=5
 
     env:
-      DB_USER: loja_user
-      DB_PASSWORD: loja_password
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_NAME: loja_db
-      DATABASE_URL: postgresql+psycopg://loja_user:loja_password@localhost:5432/loja_db
+      DATABASE_URL: postgresql+psycopg2://loja_user:loja_password@localhost:5432/loja_db
 
     steps:
       - name: Checkout repository
@@ -45,8 +43,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run migrations
+      - name: Run Alembic migrations
         run: alembic upgrade head
 
       - name: Run pytest
-        run: pytest -v --disable-warnings
+        run: pytest -v
