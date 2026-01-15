@@ -31,7 +31,8 @@ jobs:
       DB_HOST: localhost
       DB_PORT: 5432
       DB_NAME: loja_db
-      DATABASE_URL: postgresql+psycopg2://loja_user:loja_password@localhost:5432/loja_db
+      DATABASE_URL: postgresql+psycopg://user:password@host:5432/dbname
+
 
     steps:
       - name: Checkout code

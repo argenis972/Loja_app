@@ -11,7 +11,16 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # ─────────────────────────────────────────────
-# AJUSTE DO PYTHONPATH (OBRIGATÓRIO)
+# CONFIG ALEMBIC
+# ─────────────────────────────────────────────
+
+config = context.config
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# ─────────────────────────────────────────────
+# AJUSTE DO PYTHONPATH
 # ─────────────────────────────────────────────
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -21,39 +30,34 @@ sys.path.insert(0, str(BASE_DIR))
 # VARIÁVEIS DE AMBIENTE
 # ─────────────────────────────────────────────
 
-if os.getenv("PYTEST_CURRENT_TEST"):
+if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("GITHUB_ACTIONS"):
     load_dotenv(".env.test", override=True)
 else:
     load_dotenv()
 
 # ─────────────────────────────────────────────
-# IMPORTS DO PROJETO (SÓ AGORA)
+# IMPORTS DO PROJETO
 # ─────────────────────────────────────────────
 
 from infrastructure.db.base import Base  # noqa: E402
-from infrastructure.db.models import recibo_models  # noqa: E402  (FORÇA REGISTRO)
+from infrastructure.db.models import recibo_models  # noqa: E402,F401
 
 target_metadata = Base.metadata
 
 # ─────────────────────────────────────────────
-# CONFIG ALEMBIC
+# DATABASE URL
 # ─────────────────────────────────────────────
-
-config = context.config
-
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
 
 
 def get_database_url() -> str:
     url = os.getenv("DATABASE_URL")
     if not url:
-        raise RuntimeError("DATABASE_URL não configurada")
+        raise RuntimeError("DATABASE_URL is required for Alembic migrations")
     return url
 
 
 # ─────────────────────────────────────────────
-# OFFLINE
+# OFFLINE MIGRATIONS
 # ─────────────────────────────────────────────
 
 
@@ -70,7 +74,7 @@ def run_migrations_offline() -> None:
 
 
 # ─────────────────────────────────────────────
-# ONLINE
+# ONLINE MIGRATIONS
 # ─────────────────────────────────────────────
 
 
@@ -94,8 +98,6 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
-
-# ─────────────────────────────────────────────
 
 if context.is_offline_mode():
     run_migrations_offline()
