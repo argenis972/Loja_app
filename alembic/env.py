@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import sys
 from logging.config import fileConfig
@@ -8,13 +10,25 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-# Adiciona a raiz do projeto ao PYTHONPATH
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(PROJECT_ROOT))
+# Ajuste correto do PYTHONPATH (obrigatório no Windows + pytest + alembic)
 
-from infrastructure.database import Base  # agora funciona
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(BASE_DIR))
+
+#  Carrega variáveis de ambiente
+
+# Prioridade para testes
+if os.getenv("PYTEST_CURRENT_TEST"):
+    load_dotenv(".env.test", override=True)
+else:
+    load_dotenv()
+
+# Imports do projeto (agora funcionam)
+
+from infrastructure.database import Base  # noqa: E402
+
+# Configuração Alembic
 
 config = context.config
 
@@ -24,48 +38,16 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
-def get_database_url():
+def get_database_url() -> str:
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL não configurada")
     return database_url
 
 
-def run_migrations_offline():
-    """Executa migrations no modo offline."""
-    url = get_database_url()
-    context.configure(
-        url=url,
-        target_metadata=target_metadata,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-    )
-
-    with context.begin_transaction():
-        context.run_migrations()
+# Modo OFFLINE
 
 
-def run_migrations_online():
-    """Executa migrations no modo online."""
-    config.set_main_option("sqlalchemy.url", get_database_url())
-
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-        )
-
-        with context.begin_transaction():
-            context.run_migrations()
-
-
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+def run_migrations_offline() -> None:
+    config.get_main_option("sqlalchemy.url")
+    context.configure()

@@ -1,1 +1,3 @@
-from .recibo_model import ReciboModel  # noqa: F401
+from .recibo_models import ReciboModel
+
+__all__ = ["ReciboModel"]

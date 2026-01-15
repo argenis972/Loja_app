@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from domain.recibo import Recibo
 from infrastructure.database import Base
-from infrastructure.models import ReciboModel
+from infrastructure.db.models import ReciboModel
 from infrastructure.storage import PostgresReciboRepository
 
 

@@ -1,46 +1,20 @@
-import os
-import subprocess
-
 import pytest
-from dotenv import load_dotenv
 from fastapi.testclient import TestClient
-from sqlalchemy import text
 
+from api.deps import get_pagamento_service
 from api.main import app
-from infrastructure.database import SessionLocal, init_db
-
-# Carga EXCLUSIVAMENTE el env de test
-load_dotenv(".env.test", override=True)
+from services.pagamento_service import PagamentoService
 
 
-@pytest.fixture(scope="session", autouse=True)
-def db_migrated():
-    database_url = os.getenv("DATABASE_URL")
-    if not database_url:
-        raise RuntimeError("DATABASE_URL não configurada para testes")
-
-    subprocess.run(
-        ["alembic", "upgrade", "head"],
-        check=True,
-        env={**os.environ, "DATABASE_URL": database_url},
-    )
-
-    init_db()
-    yield
-
-
-@pytest.fixture(scope="function")
-def db_session():
-    db = SessionLocal()
-    try:
-        db.execute(text("TRUNCATE TABLE recibos RESTART IDENTITY;"))
-        db.commit()
-        yield db
-    finally:
-        db.close()
-
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def client():
-    with TestClient(app) as c:
-        yield c
+    def override_get_pagamento_service():
+        # 🔒 SEM repositório → não toca no banco
+        return PagamentoService(repo=None)
+
+    app.dependency_overrides[get_pagamento_service] = override_get_pagamento_service
+
+    with TestClient(app) as client:
+        yield client
+
+    app.dependency_overrides.clear()

@@ -5,13 +5,25 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from infrastructure.db.base import Base  # noqa: F401
-from infrastructure.db.models.recibo_model import ReciboModel  # noqa: F401
+from config.settings import settings
+from infrastructure.db.base import Base
+from infrastructure.db.models.recibo_models import ReciboModel  # noqa: F401
+
+engine = create_engine(settings.DATABASE_URL, future=True)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
+
+
+def init_db() -> None:
+    Base.metadata.create_all(bind=engine)
 
 
 def get_database_url() -> str:
     database_url = os.getenv("DATABASE_URL")
-
     if not database_url:
         raise RuntimeError(
             "DATABASE_URL não configurada. "
@@ -21,30 +33,10 @@ def get_database_url() -> str:
 
 
 def get_engine():
-    return create_engine(
-        get_database_url(),
-        echo=False,
-    )
-
-
-engine = None
-SessionLocal = None
-
-
-def init_db():
-    global engine, SessionLocal
-
-    if engine is None:
-        engine = get_engine()
-        SessionLocal = sessionmaker(
-            autocommit=False,
-            autoflush=False,
-            bind=engine,
-        )
+    return create_engine(get_database_url(), echo=False)
 
 
 def get_db() -> Generator:
-    init_db()
     db = SessionLocal()
     try:
         yield db
@@ -52,14 +44,8 @@ def get_db() -> Generator:
         db.close()
 
 
-def create_tables() -> None:
-    init_db()
-    Base.metadata.create_all(bind=engine)
-
-
 @contextmanager
 def session_scope() -> Generator:
-    init_db()
     db = SessionLocal()
     try:
         yield db

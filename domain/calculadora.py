@@ -111,7 +111,6 @@ class Calculadora:
             "valor_parcela": valor_parcela,
             "num_parcelas": num_parcelas,
             "taxas": taxas,
-            "opcao": opcao,
         }
 
 

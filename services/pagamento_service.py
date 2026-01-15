@@ -9,9 +9,9 @@ from domain.recibo import Recibo
 class PagamentoService:
     def __init__(
         self,
-        desconto_vista: float,
-        juros_parcelamento: float,
         repo: Optional[object] = None,
+        desconto_vista: float = 10.0,
+        juros_parcelamento: float = 0.1,
     ) -> None:
         self.calculadora = Calculadora(desconto_vista, juros_parcelamento)
         self.repo = repo
@@ -46,7 +46,6 @@ class PagamentoService:
         Mantido por compatibilidade com testes/código legado.
         Trata como pagamento parcelado simples (opção 3 por padrão).
         """
-        # Usa a lógica existente do domínio para manter consistência
         resultado = self.calculadora.calcular(valor, num_parcelas)
 
         recibo = Recibo(
@@ -65,20 +64,34 @@ class PagamentoService:
     ) -> dict:
         resultado = self.calculadora.calcular_por_opcao(opcao, valor, num_parcelas)
 
+        total = float(resultado["total"])
+        parcelas = int(resultado.get("num_parcelas", num_parcelas))
+        valor_parcela = round(total / parcelas, 2)
+
+        taxas = resultado.get("taxas", "")
+        taxas_str = str(taxas)
+
         metodo_por_opcao = {
             1: "À vista (Dinheiro)",
             2: "À vista (Cartão)",
             3: "Parcelado s/ juros",
             4: "Parcelado c/ juros",
         }
-        metodo = metodo_por_opcao.get(opcao, "Pagamento")
 
         recibo = Recibo(
             valor_original=valor,
-            total=float(resultado["total"]),
-            metodo=metodo,
-            parcelas=int(resultado.get("num_parcelas", num_parcelas)),
+            total=total,
+            metodo=metodo_por_opcao.get(opcao, "Pagamento"),
+            parcelas=parcelas,
+            informacoes_adicionais=taxas_str,
         )
 
         self._persistir(recibo)
-        return resultado
+
+        # 🔒 CONTRATO EXACTO DEL API
+        return {
+            "total": total,
+            "valor_parcela": valor_parcela,
+            "num_parcelas": parcelas,
+            "taxas": taxas_str,
+        }

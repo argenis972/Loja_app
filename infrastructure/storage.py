@@ -3,13 +3,11 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from domain.recibo import Recibo
-from infrastructure.db.models.recibo_model import ReciboModel
+from infrastructure.db.models.recibo_models import ReciboModel
 from services.recibo_repository import ReciboRepository
 
 
 class PostgresReciboRepository(ReciboRepository):
-    """Repositório PostgreSQL para persistência de Recibo via SQLAlchemy."""
-
     def __init__(self, db_session: Session):
         self.db = db_session
 
