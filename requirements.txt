@@ -1,6 +1,7 @@
 # --- Core ---
 fastapi
 pydantic
+pydantic-settings
 uvicorn
 
 # --- Persistence ---
