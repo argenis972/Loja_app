@@ -7,7 +7,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?style=flat&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> **Branch note:** This README reflects the structure and features of the `Criar_PostgreSQL` branch.
+> **Branch note:** This README reflects the structure and features of the `Criar_PostgreSQL` branch. <br>
 > **Scope note:** This is a learning / lab project focused on backend architecture, financial logic, and testing.
 
 ## 📌 Overview
