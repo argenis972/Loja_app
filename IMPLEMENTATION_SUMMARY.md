@@ -1,186 +1,214 @@
-# PostgreSQL Persistence Implementation Summary
+# PostgreSQL Persistence — Implementation Summary
 
 ## Overview
-Successfully implemented PostgreSQL persistence using SQLAlchemy while maintaining full backward compatibility with existing file-based storage.
 
-## Changes Made
+This document summarizes the final implementation of **PostgreSQL persistence** in the **Loja App backend**, using:
 
-### 1. Dependencies (`requirements.txt`)
-- Added `sqlalchemy>=2.0.0` for ORM functionality
-- Added `psycopg[binary]>=3.0.0` for PostgreSQL connectivity
+- **SQLAlchemy 2.x**
+- **Alembic migrations**
+- **FastAPI dependency injection**
+- **Pytest with real database integration**
 
-### 2. Database Infrastructure
+This branch (`Criar_PostgreSQL`) consolidates the backend as an **API-first system**, with a clean separation between domain, services, infrastructure, and delivery layers.
+
+---
+
+## Goals Achieved
+
+- Persist receipts (`recibos`) in **PostgreSQL**
+- Enforce schema consistency via **Alembic**
+- Keep domain rules independent from infrastructure
+- Support full integration testing with database isolation
+- Ensure CI stability with deterministic DB initialization
+
+All goals were met and validated by automated tests.
+
+---
+
+## Dependencies
+
+### `requirements.txt`
+
+Key persistence-related dependencies:
+
+- `sqlalchemy>=2.0`
+- `psycopg[binary]>=3.0`
+- `alembic`
+- `fastapi`
+- `pytest`
+
+The dependency list intentionally mixes runtime and test tools, as this is a learning/lab repository.
+
+---
+
+## Database Architecture
+
+### 1. SQLAlchemy Core
 
 #### `infrastructure/database.py`
-- Database configuration and session management
-- Reads `DATABASE_URL` from environment (defaults to SQLite)
-- Provides `get_db()` dependency for session injection
-- Implements `create_tables()` for automatic table creation
-- Base class for all SQLAlchemy models
 
-#### `infrastructure/models.py`
-- SQLAlchemy model `ReciboModel` with fields:
-  - `id`: Primary key
-  - `total`: Receipt total amount
-  - `metodo`: Payment method
-  - `parcelas`: Number of installments
-  - `informacoes_adicionais`: Additional information
-  - `created_at`: Timestamp
+Responsibilities:
 
-#### `infrastructure/storage.py`
-- **ArquivoReciboRepository**: File-based storage (existing, unchanged)
-- **PostgresReciboRepository**: New PostgreSQL-based storage
-- Both implement `ReciboRepository` interface
+- Resolve `DATABASE_URL` from environment
+- Create SQLAlchemy `engine` and `SessionLocal`
+- Provide session factory for repositories and services
+- Detect test/CI context to avoid fatal import-time crashes
+- Act as the single source of DB configuration
 
-#### `infrastructure/__init__.py`
-- Exports both repository implementations for easy imports
+This module is imported early and intentionally fails fast **outside test/CI contexts** if the database is misconfigured.
 
-### 3. API Integration
+---
 
+### 2. ORM Models
+
+#### `infrastructure/db/models/recibo_model.py`
+
+Defines the `recibos` table schema:
+
+| Column | Type | Notes |
+|------|------|------|
+| `id` | Integer | Primary key |
+| `total` | Float | Final calculated amount |
+| `metodo` | String(50) | Payment method |
+| `parcelas` | Integer | Number of installments |
+| `informacoes_adicionais` | Text | Optional |
+| `valor_parcela` | Float | Calculated installment value |
+| `created_at` | Timestamp | Default: `now()` |
+
+The ORM model mirrors the domain entity but remains infrastructure-specific.
+
+---
+
+### 3. Alembic Migrations
+
+#### `alembic/`
+
+- Schema changes are managed **exclusively via Alembic**
+- No runtime `create_all()` calls are used
+- Migrations are mandatory for both development and tests
+
+Example:
+
+```bash
+alembic revision --autogenerate -m "initial schema"
+alembic upgrade head
+```
+This guarantees schema reproducibility and test determinism.
+
+### Repository Layer
+
+#### `services/recibo_repository.py`
+
+Defines the repository interface used by the application layer.
+No infrastructure details leak into services or domain.
+
+---
+
+### `infrastructure/storage.py`
+Implements:
+- `PostgresReciboRepository`
+
+Responsibilities:
+
+- Persist Recibo domain objects
+- Map between domain and ORM model
+- Commit transactions explicitly
+- Return fully hydrated domain entities
+
+There is **no file-based or fallback repository** in this branch.
+
+## API Integration
+
+### Dependency Injection
 #### `api/deps.py`
-- Dependency injection for FastAPI
-- `get_recibo_repository()`: Returns PostgreSQL repo if `DATABASE_URL` starts with "postgres", otherwise file repo
-- `get_pagamento_service()`: Creates service with appropriate repository
+- Wires **PostgresReciboRepository** into the application
+- Builds **PagamentoService** with explicit dependencies
+- Keeps FastAPI routes thin and declarative
 
-#### `api/main.py`
-- Added `create_tables()` call in lifespan to auto-create tables on startup
-- Graceful error handling for database setup
+### API Layer
+#### `api/pagamentos_api.py`
+Endpoints:
+- `POST /pagamentos/` — required (contract-driven)
+- `GET /pagamentos/` — optional (listing persisted receipts)
 
-### 4. Database Setup
+Responsibilities:
+- Input validation via Pydantic DTOs
+- Delegation to application services
+- Explicit response models (DTOs)
 
-#### `setup_database.py`
-- Standalone script for manual table creation
-- Useful for production deployments
-- Shows created tables for verification
+### Testing Strategy
 
-### 5. Testing
+### Test Databases
 
-#### `tests/test_postgres_repository.py`
-- Unit tests for PostgresReciboRepository
-- Uses SQLite in-memory for testing (no PostgreSQL required)
-- Tests single and multiple recibo persistence
+- Tests run against a **real PostgreSQL schema**
+- A dedicated **test database** is required (`loja_test_db`)
+- Alembic migrations are applied automatically during tests
+- Tables are truncated between test cases
 
-#### `tests/test_integration_postgres.py`
-- Integration tests demonstrating full workflow
-- Tests with both in-memory and file-based SQLite
-- Verifies database file creation and data persistence
+### Test Coverage Summary
 
-### 6. Documentation
+| Test Group | Purpose |
+|---|---|
+| `test_calculadora` | Pure domain rules |
+| `test_pagamento_service` | Application use cases |
+| `test_postgres_repository` | Repository behavior |
+| `test_integration_postgres` | Full stack (API + DB) |
+| `test_api_pagamentos` | HTTP contract validation |
+| `test_recibo` | Domain entity correctness |
 
-#### Updated `README.md`
-- Added section "4. Configurar Persistência"
-- Instructions for both file-based and PostgreSQL persistence
-- Environment variable configuration examples
-- Database creation and table setup instructions
-- Notes about automatic table creation
-- Updated roadmap to mark PostgreSQL as ✅ Concluído
+Result:
 
-#### `.gitignore`
-- Added `receipts/*.db` to ignore SQLite database files
+- Total tests: 24
+- Passing: 24
+- Failing: 0
 
-## Key Features
+### CI Considerations
+### Import-Time Database Validation
 
-### 1. Backward Compatibility
-- All existing tests pass (25/25)
-- File-based storage still works as default
-- No breaking changes to existing code
+**Problem**
 
-### 2. Flexible Configuration
-- Environment-based configuration via `DATABASE_URL`
-- Automatic fallback to file storage if not configured
-- Supports both PostgreSQL and SQLite
+Database configuration is validated during module import, but CI environments do not define `DATABASE_URL` by default.
 
-### 3. Production Ready
-- Automatic table creation on app startup
-- Manual setup script for controlled deployments
-- Proper session management and error handling
+**Solution**
 
-### 4. Testing
-- Uses SQLite for tests (no PostgreSQL dependency)
-- Comprehensive test coverage for new functionality
-- Integration tests demonstrate real-world usage
+The database bootstrap detects test/CI contexts.
+In these contexts, a safe default test URL is used.
+In real runtime, missing `DATABASE_URL` still raises an error.
 
-## Usage Examples
+This preserves correctness without weakening safety guarantees.
 
-### Using File Storage (Default)
-```bash
-# No configuration needed
-python main.py
-uvicorn api.main:app --reload
-```
+### Current State Summary
 
-### Using SQLite
-```bash
-export DATABASE_URL="sqlite:///./receipts/recibos.db"
-python setup_database.py  # Optional: creates tables
-uvicorn api.main:app --reload
-```
+| ***Area*** | ***Status*** |
+|---|---|
+| Domain rules | ✅ Stable |
+| PostgreSQL persistence | ✅ Implemented |
+| Alembic migrations | ✅ Active |
+| API endpoints | ✅ Stable |
+| Dependency injection | ✅ Explicit |
+| Automated tests | ✅ Passing |
+| CI pipeline | ✅ Green |
 
-### Using PostgreSQL
-```bash
-# 1. Create database
-createdb loja_app
+This branch has **reached its intended conclusion.**
 
-# 2. Configure connection
-export DATABASE_URL="postgresql://user:pass@localhost:5432/loja_app"
+### Non-Goals (Explicitly Out of Scope)
 
-# 3. Optional: Manual table creation
-python setup_database.py
+- Frontend or UI implementation
+- Authentication / authorization
+- Async database drivers
+- Query optimization or pagination
+- Production hardening (pool tuning, retries, etc.)
 
-# 4. Start app (tables created automatically if not exists)
-uvicorn api.main:app --reload
-```
+These concerns are intentionally deferred.
 
-## Testing Results
-- **Total Tests**: 25
-- **Passing**: 25 ✅
-- **Failing**: 0
-- **New Tests Added**: 4
-  - `test_postgres_repository.py` (2 tests)
-  - `test_integration_postgres.py` (2 tests)
+### Conclusion
 
-## Linting Results
-- **black**: ✅ All files formatted
-- **isort**: ✅ All imports sorted
-- **flake8**: ✅ No issues (max-line-length=88, E203,W503 ignored)
+The PostgreSQL persistence layer is fully implemented, tested, and integrated.
 
-## Files Modified/Created
+The backend now represents a **clean, deterministic, API-first architecture** suitable for:
 
-### Created (9 files)
-1. `infrastructure/database.py`
-2. `infrastructure/models.py`
-3. `api/deps.py`
-4. `setup_database.py`
-5. `tests/test_postgres_repository.py`
-6. `tests/test_integration_postgres.py`
+- Further backend extensions
+- Frontend consumption via HTTP
+- Educational reference for layered design with FastAPI + SQLAlchemy + Alembic
 
-### Modified (7 files)
-1. `requirements.txt`
-2. `infrastructure/__init__.py`
-3. `infrastructure/storage.py`
-4. `api/main.py`
-5. `ui/__init__.py`
-6. `README.md`
-7. `.gitignore`
-
-## Future Enhancements (Optional)
-1. Add Alembic for database migrations
-2. Implement repository querying methods (list, find_by_id, etc.)
-3. Add pagination support for listing recibos
-4. Implement soft deletes
-5. Add database connection pooling configuration
-6. Create admin endpoints for recibo management
-
-## Conclusion
-The implementation successfully meets all requirements:
-- ✅ SQLAlchemy-based persistence layer
-- ✅ PostgreSQL support with DATABASE_URL configuration
-- ✅ SQLAlchemy models and table definitions
-- ✅ Database session/engine helpers
-- ✅ Fixed imports and dependency wiring
-- ✅ Backward compatibility maintained
-- ✅ All tests passing (pytest collection succeeds)
-- ✅ Tests use temporary SQLite (no PostgreSQL required)
-- ✅ Updated dependencies in requirements.txt
-- ✅ Comprehensive README documentation
-- ✅ All code properly formatted and linted
+This branch can be considered complete and closed.

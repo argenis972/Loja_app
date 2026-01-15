@@ -1,25 +1,24 @@
-
-receipts/*.json
-receipts/*.txt
-receipts/*.db
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 .pytest_cache/
-.coverage
-*tatus*
-.env
-*.pyc
 
-# virtualenv
+# Virtualenv
 venv/
 .env
+.env.test
 
-# local data
-receipts/
+# DB / Alembic
+alembic/versions/__pycache__/
 *.db
-*.log
 
 # OS
-__pycache__/
-*.pyc
+.DS_Store
+Thumbs.db
 
-Note 
+# IDE
+.vscode/
+.idea/
+

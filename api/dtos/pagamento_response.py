@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
-class PagamentoResponse(BaseModel):
+class ReciboResponse(BaseModel):
+    id: int
     total: float
-    metodo: str
-    descricao: str
-    parcelas: int
-    valor_parcela: float
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

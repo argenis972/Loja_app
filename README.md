@@ -1,4 +1,4 @@
-# 🛍️ Loja App — Python Backend (Learning Lab) for Financial Business Rules
+# 🛍️ Loja App — Python Backend (Learning Lab)
 
 ![CI](https://github.com/argenis972/Loja_app/actions/workflows/tests.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat&logo=python&logoColor=white)
@@ -7,200 +7,206 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?style=flat&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> **Branch note:** this README reflects the structure and features of the **`Criar_PostgreSQL`** branch.  
-> **Scope note:** this is a **learning/lab project** (not a production-ready system).
-
----
+> **Branch note:** This README reflects the structure and features of the `Criar_PostgreSQL` branch.
+> **Scope note:** This is a learning / lab project focused on backend architecture, financial logic, and testing.
 
 ## 📌 Overview
 
-**Loja App** is a **Python backend lab** focused on practicing:
+**Loja App** is a **Python backend learning lab.**
 
-- installment payment calculation (with constraints)
-- receipt persistence (**PostgreSQL**)
-- separation of domain rules from I/O (CLI + API)
+### 1. What it is and what it is for
+
+This project exists to practice and understand:
+
+- backend architecture,
+- business rule modeling,
+- REST API development,
+- database persistence,
+- and automated testing.
+
+It is intentionally scoped as a **learning repository**, not a production system.
 
 ---
 
-## 🧱 Architecture (no magic, just separation)
+### 2. Why the refactor and removal of local UI / simple `main.py`
 
-- **domain/**: pure rules and entities
-- **services/**: use cases
-- **infrastructure/**: DB/persistence details
-- **ui/** and **api/**: adapters over the same core
+Early iterations included a local UI and a simple executable `main.py`.
+As the project evolved, the focus shifted toward:
+- an **API-first backend**,
+- clearer separation of concerns,
+- persistence and integration testing.
 
-### Current repository structure (`Criar_PostgreSQL`)
+For that reason, the local UI and direct execution flow were removed to keep the backend clean, explicit, and test-driven.
+
+---
+
+### 3. UI as a possible future frontend
+
+UI concerns are intentionally treated as **external consumers.**
+
+A future UI (web or otherwise) could be developed as a separate frontend project that communicates with this backend exclusively via HTTP, without coupling presentation logic to the core system.
+
+## 🧱 Architecture
+
+The project follows a **layered backend architecture** to ensure separation of concerns and testability:
+
+- `domain/`: Pure business rules and entities (independent of frameworks).
+- `services/`: Application use cases and logic orchestration.
+- `infrastructure/`: Database implementation and external tools.
+- `api/`: REST delivery layer (FastAPI controllers).
+- `tests/`: Integration and unit tests.
+
+## 📂 Repository Structure (`Criar_PostgreSQL`)
 
 ```text
 Loja_app/
-├── .github/
-│   └── workflows/
-|        ├── ci.yml
-|        ├── python-app.yml
-│        └── tests.yml                 # CI pipeline (GitHub Actions)
-|                 
-├── alembic/                           # Database migrations (Alembic)
+├── .github/workflows/         # CI pipelines (GitHub Actions)
+│   ├── ci.yml
+│   ├── python-app.yml
+│   └── tests.yml
+│
+├── alembic/                   # Database migrations (Alembic)
 │   ├── env.py
-│   ├── script.py.mako
 │   └── versions/
 │
-├── api/                               # REST API (FastAPI)
-│   ├── main.py                        # FastAPI app
-│   ├── pagamentos_api.py              # routes/endpoints
-│   ├── deps.py                        # DI (Postgres-only repository)
-│   └── dtos/                          # Pydantic models (DTOs)
+├── api/                       # REST API Layer (FastAPI)
+│   ├── main.py                # App entry point
+│   ├── pagamentos_api.py      # Endpoints
+│   ├── deps.py                # Dependency Injection
+│   └── dtos/                  # Pydantic DTOs
 │
-├── config/                            # External configuration
+├── config/                    # Configuration
 │   ├── settings.py
-│   └── taxas.json                     # interest rates table (configurable)
+│   └── taxas.json             # Interest rates definition
 │
-├── domain/                            # Pure business core
-│   ├── calculadora.py                 # financial calculation engine
+├── domain/                    # Business Core
+│   ├── calculadora.py         # Calculation engine
 │   ├── exceptions.py
-│   └── recibo.py                      # domain entity
+│   └── recibo.py              # Entities
 │
-├── services/                          # Use cases
+├── services/                  # Use Cases
 │   ├── pagamento_service.py
-│   └── recibo_repository.py
+│   └── recibo_repository.py   # Interface definition
 │
-├── infrastructure/                    # Technical infrastructure (DB, persistence)
-│   ├── __init__.py
-│   ├── database.py                    # SQLAlchemy session/engine + DATABASE_URL resolution
-│   ├── models.py                      # compatibility module (if kept) / public re-exports
-│   ├── storage.py                     # PostgresReciboRepository
-|   ├── storage_cli.py                 # CLI-specific repository impl (if kept)
-│   └── db/
-│       ├── base.py
-|       ├── postgres.py
-│       ├── mappers/
-│       └── models/
+├── infrastructure/            # Implementation details
+│   ├── database.py            # SQLAlchemy setup
+│   ├── storage.py             # Repository implementation
+│   └── db/                    # ORM Models & Mappers
 │
-├── tests/                             # test suite (Postgres + Alembic)
-│   └── conftest.py                    # migrates + truncates between tests
+├── tests/                      # Test Suite
+│   └── conftest.py             # Fixtures (Migration + Truncate)
 │
-├── ui/                                # CLI
-│   ├── menu.py
-│   └── validacoes.py
-│
-├── alembic.ini
-├── setup_database.py
-├── main.py                            # CLI entrypoint
-├── requirements.txt
-├── IMPLEMENTATION_SUMMARY.md
-├── .flake8
-├── .pre-commit-config.yaml
-├── .gitignore
-└── README.md
+├── alembic.ini                 # Alembic config
+├── CHANGELOG.md                # Changelog file
+├── .env                        # Environment variables
+├── .env.test                   # Test env vars (not committed)
+├── .flake8                     # Linting config
+├── .gitignore                  # Git ignore rules
+├── .pre-commit-config.yaml     # Pre-commit hooks
+├── IMPLEMENTATION_SUMMARY.md   # Implementation notes
+├── README.md                   # This file
+└── requirements.txt            # Python dependencies
 ```
+## PostgreSQL Implementation Details
+
+## Overview
+
+This branch (`Criar_PostgreSQL`) consolidates the backend as an **API-first system**, with a clean separation between domain, services, infrastructure, and delivery layers. It introduces robust persistence using PostgreSQL and managed migrations.
+
+> **Note:** Earlier CLI experiments (`ui/`) were useful during exploration, but the current focus of this branch is the API and backend core.
 
 ---
 
 ## 🧮 Business Rules
 
-| Payment Mode        | Condition         | Applied Rule                      |
-| ------------------- | ----------------- | --------------------------------- |
-| Cash (Upfront)      | immediate payment | 10% discount                      |
-| Card (Upfront)      | immediate payment | 5% discount                       |
-| Short Installments  | 2x to 6x          | 0% interest (original price)      |
-| Long Installments   | 12x to 24x        | fixed 10% increase over the total |
+| Payment Mode | Condition | Applied Rule |
+| :--- | :--- | :--- |
+| **Cash (Upfront)** | Immediate payment | **10% discount** |
+| **Card (Upfront)** | Immediate payment | **5% discount** |
+| **Short Installments** | 2x to 6x | **0% interest** (original price) |
+| **Long Installments** | 12x to 24x | **Fixed 10% increase** over total |
 
-**Validation:** installment attempts outside allowed ranges (e.g., 7x to 11x) must raise a domain validation error.
+**Validation:** Installment attempts outside allowed ranges (e.g., 7x to 11x) must raise a domain validation error.
 
 ---
 
 ## 🛠️ Setup & Run
 
-Requirements: **Python 3.12+**
+### Requirements
+* Python 3.12+
+
+### Installation
 
 ```bash
-git clone https://github.com/argenis972/Loja_app.git
+git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
 cd Loja_app
 git checkout Criar_PostgreSQL
 
+# Create virtual environment
 python -m venv venv
-# Windows:
+
+# Windows
 .\venv\Scripts\activate
-# Linux/Mac:
+
+# Linux / Mac
 source venv/bin/activate
 
+# Install dependencies
 pip install -r requirements.txt
 ```
-
-> `requirements.txt` is intentionally simple for this lab: it may include runtime + dev/test tools together (not a strict prod-only list nor a lockfile).
+`requirements.txt` is intentionally simple for this lab and may include runtime and test dependencies together.
 
 ---
 
 ## 🗄️ PostgreSQL (Persistence)
 
-### 1) Create database
+###  1) Create databases
 ```sql
 CREATE DATABASE loja_db;
 CREATE DATABASE loja_test_db;
 ```
+## 2) Configure `DATABASE_URL`
 
-### 2) Configure `DATABASE_URL`
-
-**Windows (PowerShell):**
+### Windows (PowerShell):
 ```powershell
 $env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_db"
 ```
-
-**Linux/Mac:**
+### Linux / Mac (Bash):
 ```bash
 export DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_db"
 ```
 
-### 3) Run migrations (recommended)
+## 3) Run migrations
 ```bash
 alembic upgrade head
 ```
 
----
-
-## ▶️ Run CLI
-
-```bash
-python main.py
-```
-
-> The CLI uses the same core rules/services and persists receipts in Postgres.
-
----
-
-## 🌐 Run REST API (FastAPI)
+## 4) 🌐 Run REST API (FastAPI)
 
 ```bash
 uvicorn api.main:app --reload --no-use-colors
 ```
-
-- Swagger UI: http://127.0.0.1:8000/docs
-
----
-
+- **Swagger UI: http://127.0.0.1:8000/docs**
 ## 🧪 Run tests (Postgres + Alembic)
+Tests expect `DATABASE_URL` to point to a **test database.**
 
-Tests expect `DATABASE_URL` to point to a **test database**:
-
-**Windows (PowerShell):**
+### Windows (PowerShell):
 ```powershell
 $env:DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_test_db"
 pytest
 ```
-
-**Linux/Mac:**
+### Linux / Mac:
 ```bash
 export DATABASE_URL="postgresql+psycopg://user:password@localhost:5432/loja_test_db"
 pytest
 ```
-
 ---
 
 ## 📡 API Examples
 
-### ✅ Happy path (example)
+### ✅ Happy path
 
 `POST /pagamentos/`
-
 ```json
 {
   "opcao": 3,
@@ -208,7 +214,6 @@ pytest
   "num_parcelas": 6
 }
 ```
-
 ```json
 {
   "total": 100.00,
@@ -218,9 +223,8 @@ pytest
   "status": "aprovado"
 }
 ```
-
 ### ❌ Error: invalid installments
-
+`POST /pagamentos/`
 ```json
 {
   "opcao": 3,
@@ -228,59 +232,53 @@ pytest
   "num_parcelas": 10
 }
 ```
-
 ```json
 {
   "detail": "Número de parcelas inválido: permitido 2 a 6 ou 12 a 24."
 }
 ```
-
 ---
-
 ## 🧠 CI Root Cause & Fix (DATABASE_URL at import time)
 
 ### Root cause
-The project validates DB configuration **at import time** (module import).  
-In GitHub Actions, `DATABASE_URL` is not defined by default.
 
-**Failure mechanics:**
-- `pytest` loads `tests/conftest.py`
-- which imports the FastAPI app (`api.main`)
-- which imports `infrastructure/database.py`
-- which evaluates `_get_database_url()`
-- and raises a fatal `RuntimeError` before tests start if `DATABASE_URL` is missing.
+The project validates DB configuration **at import time.**
+In CI environments (GitHub Actions), `DATABASE_URL` is not defined by default.
 
 ### Fix
-The initialization became **context-aware**:
-- It detects automation/testing contexts (e.g., `PYTEST_CURRENT_TEST` and `GITHUB_ACTIONS`)
-- When detected and `DATABASE_URL` is missing, it uses a safe default test URL (instead of crashing)
-- The `RuntimeError` remains for real/runtime environments to prevent starting without DB configuration
 
-> This is intentionally kept simple as a lab approach.
+Initialization was made **context-aware:**
+
+- CI and test contexts are detected
+- a safe default test URL is used when appropriate
+- a `RuntimeError` is still raised in real runtime if DB configuration is missing
+
+This keeps the behavior explicit while avoiding CI failures.
 
 ---
 
-## 🗺️ Status (Project close)
+## 🗺️ Status (branch goal reached)
 
-| Area | Item | Status |
-| --- | --- | --- |
-| Core | Installment rules + validation | ✅ Done |
-| API | FastAPI endpoints | ✅ Done |
-| Persistence | PostgreSQL + migrations (Alembic) | ✅ Done |
-| Tests | Pytest + CI | ✅ Done |
-
+| Area        | Item                           | Status |
+| ----------- | ------------------------------ | ------ |
+| Core        | Installment rules + validation | ✅ Done |
+| API         | FastAPI endpoints              | ✅ Done |
+| Persistence | PostgreSQL + Alembic           | ✅ Done |
+| Tests       | Pytest + CI                    | ✅ Done |
 ---
 
 ## 👤 Author
 
-**Argenis López**
+### *Argenis López*
 
-- LinkedIn: https://www.linkedin.com/in/argenis972/
-- E-mail: argenislopez28708256@gmail.com
-- GitHub: https://github.com/argenis972
-
+- LinkedIn: **https://www.linkedin.com/in/argenis972/**
+- GitHub: **https://github.com/argenis972**
+- Email: **argenislopez28708256@gmail.com**
 ---
-
 ## 📜 License
+MIT — feel free to study, adapt, and evolve.
 
-MIT — feel free to study, adapt and evolve.
+
+
+
+
