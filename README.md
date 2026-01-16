@@ -60,9 +60,7 @@ The project follows a **layered backend architecture** to ensure separation of c
 
 ```text
 Loja_app/
-├── .github/workflows/         # CI pipelines (GitHub Actions)
-│   ├── ci.yml
-│   ├── python-app.yml
+├── .github/workflows/         # CI Configuration
 │   └── tests.yml
 │
 ├── alembic/                   # Database migrations (Alembic)
@@ -138,9 +136,8 @@ This branch (`Criar_PostgreSQL`) consolidates the backend as an **API-first syst
 ### Installation
 
 ```bash
-git clone [https://github.com/argenis972/Loja_app.git](https://github.com/argenis972/Loja_app.git)
+git clone https://github.com/argenis972/Loja_app.git
 cd Loja_app
-git checkout Criar_PostgreSQL
 
 # Create virtual environment
 python -m venv venv
